@@ -281,9 +281,11 @@ def create_experiment_matrix(
         matrix, seed=seed, convergence_type=convergence_type
     )
 
-    # Create initial vector with derived seed for reproducibility
-    rng = np.random.default_rng(seed + 1)  # Offset to avoid correlation
-    initial_vector = rng.standard_normal(n)
+    # Create initial vector using same RNG sequence as matrix creation
+    # This matches precision-lens behavior: re-seed, skip matrix Q calls, then generate
+    np.random.seed(seed)
+    _ = np.random.randn(n, n)  # Skip the random calls used for matrix Q
+    initial_vector = np.random.randn(n)
     initial_vector = initial_vector / np.linalg.norm(initial_vector)
 
     true_eigenvalue = float(np.max(np.linalg.eigvalsh(matrix)))
