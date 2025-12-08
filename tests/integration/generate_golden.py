@@ -9,7 +9,7 @@ import json
 from pathlib import Path
 
 from precision_lab.algorithms.cascading import CascadingPowerMethod
-from precision_lab.algorithms.matrices import create_experiment_matrix
+from precision_lab.algorithms.matrices import create_experiment
 from precision_lab.algorithms.power_method import PowerIteration
 
 # Test parameters - MUST match test_trace_reproducibility.py
@@ -24,7 +24,7 @@ GOLDEN_DIR = Path(__file__).parent / "golden"
 
 def generate_single_precision_trace(precision: str) -> list[dict]:
     """Generate trace for a single precision level."""
-    experiment = create_experiment_matrix(
+    experiment = create_experiment(
         MATRIX_SIZE,
         CONDITION_NUMBER,
         seed=SEED,

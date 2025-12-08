@@ -226,8 +226,8 @@ def compute_fingerprint(
 
 
 @dataclass(frozen=True, slots=True)
-class ExperimentMatrix:
-    """Container for experiment matrix with metadata."""
+class ExperimentSetup:
+    """Container for complete experiment setup with metadata."""
 
     matrix: NDArray[np.float64]
     """The n×n SPD matrix."""
@@ -242,55 +242,76 @@ class ExperimentMatrix:
     """Largest eigenvalue (ground truth)."""
 
 
-def create_experiment_matrix(
+# Backwards compatibility alias
+ExperimentMatrix = ExperimentSetup
+
+
+def create_experiment(
     n: int,
     condition_number: float,
     *,
     seed: int = DEFAULT_SEED,
     convergence_type: str = "slow",
-) -> ExperimentMatrix:
-    """Create matrix for experiments with full metadata.
+    eigenvalue_gap: float = 1.1,
+) -> ExperimentSetup:
+    """Create complete experiment setup: matrix, initial vector, and metadata.
 
-    This is the canonical function for creating matrices in experiments.
-    It returns both the matrix and metadata for verification.
+    Uses a single RNG instance (MT19937 for reproducibility) to generate both
+    the matrix and initial vector in natural sequence - no skip hacks needed.
 
     Args:
         n: Matrix dimension.
-        condition_number: Desired condition number.
+        condition_number: Desired condition number κ = λ_max / λ_min.
         seed: Random seed (default: 42 for reproducibility).
         convergence_type: "slow" (10% gap), "linear", or "geometric".
+        eigenvalue_gap: For "slow" type, ratio λ₁/λ₂ (default 1.1).
 
     Returns:
-        ExperimentMatrix with matrix, fingerprint, and initial vector.
+        ExperimentSetup with matrix, fingerprint, initial vector, and true eigenvalue.
 
     Example:
-        >>> exp = create_experiment_matrix(1024, 100)
-        >>> print(f"True λ = {exp.true_eigenvalue:.6f}")
+        >>> experiment = create_experiment(100, condition_number=100.0)
+        >>> print(f"True λ = {experiment.true_eigenvalue:.6f}")
     """
+    from numpy.random import Generator, MT19937
+
+    # Single RNG instance for entire experiment setup
+    # Uses MT19937 for reproducibility with legacy code
+    rng = Generator(MT19937(seed=seed))
+
+    # Build eigenvalue spectrum based on convergence type
     if convergence_type == "slow":
-        matrix = create_slow_convergence_matrix(n, condition_number, seed=seed)
+        eigenvalues = np.zeros(n)
+        eigenvalues[0] = condition_number
+        eigenvalues[1] = condition_number / eigenvalue_gap
+        if n > 2:
+            remaining = np.geomspace(eigenvalues[1], 1.0, n - 1)
+            eigenvalues[1:] = remaining
     elif convergence_type == "linear":
-        matrix = create_linear_spectrum_matrix(n, condition_number, seed=seed)
+        eigenvalues = np.linspace(1.0, condition_number, n)
     elif convergence_type == "geometric":
-        matrix = create_geometric_spectrum_matrix(n, condition_number, seed=seed)
+        eigenvalues = np.geomspace(1.0, condition_number, n)
     else:
         msg = f"Unknown convergence_type: {convergence_type}"
         raise ValueError(msg)
+
+    # Random orthogonal matrix via QR decomposition
+    Q, _ = np.linalg.qr(rng.standard_normal((n, n)))
+
+    # Construct A = Q @ diag(λ) @ Q^T
+    matrix = Q @ np.diag(eigenvalues) @ Q.T
+
+    # Initial vector follows naturally in the RNG sequence
+    initial_vector = rng.standard_normal(n)
+    initial_vector = initial_vector / np.linalg.norm(initial_vector)
 
     fingerprint = compute_fingerprint(
         matrix, seed=seed, convergence_type=convergence_type
     )
 
-    # Create initial vector using same RNG sequence as matrix creation
-    # This matches precision-lens behavior: re-seed, skip matrix Q calls, then generate
-    np.random.seed(seed)
-    _ = np.random.randn(n, n)  # Skip the random calls used for matrix Q
-    initial_vector = np.random.randn(n)
-    initial_vector = initial_vector / np.linalg.norm(initial_vector)
-
     true_eigenvalue = float(np.max(np.linalg.eigvalsh(matrix)))
 
-    return ExperimentMatrix(
+    return ExperimentSetup(
         matrix=matrix,
         fingerprint=fingerprint,
         initial_vector=initial_vector,
@@ -298,13 +319,19 @@ def create_experiment_matrix(
     )
 
 
+# Backwards compatibility alias
+create_experiment_matrix = create_experiment
+
+
 __all__ = [
     "DEFAULT_SEED",
     "MatrixFingerprint",
-    "ExperimentMatrix",
+    "ExperimentSetup",
+    "ExperimentMatrix",  # Backwards compatibility alias
     "create_linear_spectrum_matrix",
     "create_slow_convergence_matrix",
     "create_geometric_spectrum_matrix",
     "compute_fingerprint",
-    "create_experiment_matrix",
+    "create_experiment",
+    "create_experiment_matrix",  # Backwards compatibility alias
 ]

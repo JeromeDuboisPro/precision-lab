@@ -28,8 +28,8 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 from precision_lab.algorithms.matrices import (
-    ExperimentMatrix,
-    create_experiment_matrix,
+    ExperimentSetup,
+    create_experiment,
 )
 from precision_lab.algorithms.plateau_detection import (
     MultiCriteriaDetector,
@@ -202,14 +202,14 @@ class CascadingPowerMethod:
     convergence_type: str = "slow"
 
     # Internal state (set in __post_init__)
-    _experiment: ExperimentMatrix = field(init=False, repr=False)
+    _experiment: ExperimentSetup = field(init=False, repr=False)
     _precision_cascade: tuple[PrecisionConfig, ...] = field(
         init=False, repr=False, default=DEFAULT_PRECISION_CASCADE
     )
 
     def __post_init__(self) -> None:
-        """Initialize experiment matrix."""
-        self._experiment = create_experiment_matrix(
+        """Initialize experiment setup."""
+        self._experiment = create_experiment(
             self.matrix_size,
             self.condition_number,
             seed=self.seed,

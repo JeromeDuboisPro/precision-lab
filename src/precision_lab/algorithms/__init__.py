@@ -17,8 +17,10 @@ from precision_lab.algorithms.cascading import (
 from precision_lab.algorithms.matrices import (
     DEFAULT_SEED,
     ExperimentMatrix,
+    ExperimentSetup,
     MatrixFingerprint,
     compute_fingerprint,
+    create_experiment,
     create_experiment_matrix,
     create_geometric_spectrum_matrix,
     create_linear_spectrum_matrix,
@@ -49,10 +51,12 @@ __all__ = [
     "SegmentResult",
     # Matrix generation
     "DEFAULT_SEED",
-    "ExperimentMatrix",
+    "ExperimentSetup",
+    "ExperimentMatrix",  # Backwards compatibility alias
     "MatrixFingerprint",
     "compute_fingerprint",
-    "create_experiment_matrix",
+    "create_experiment",
+    "create_experiment_matrix",  # Backwards compatibility alias
     "create_geometric_spectrum_matrix",
     "create_linear_spectrum_matrix",
     "create_slow_convergence_matrix",

@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-from precision_lab.algorithms.matrices import create_experiment_matrix
+from precision_lab.algorithms.matrices import create_experiment
 from precision_lab.algorithms.power_method import (
     ConvergenceResult,
     IterationResult,
@@ -51,7 +51,7 @@ class TestPowerIteration:
     @pytest.fixture
     def experiment(self):
         """Create experiment matrix for testing."""
-        return create_experiment_matrix(100, 100, seed=42)
+        return create_experiment(100, 100, seed=42)
 
     def test_initialization(self, experiment) -> None:
         """PowerIteration should initialize correctly."""
@@ -145,7 +145,7 @@ class TestRunPowerMethod:
     @pytest.fixture
     def experiment(self):
         """Create experiment matrix for testing."""
-        return create_experiment_matrix(100, 100, seed=42)
+        return create_experiment(100, 100, seed=42)
 
     def test_returns_trace(self, experiment) -> None:
         """Should return PowerMethodTrace."""

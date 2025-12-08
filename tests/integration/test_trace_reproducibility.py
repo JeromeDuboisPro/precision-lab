@@ -15,7 +15,7 @@ import numpy as np
 import pytest
 
 from precision_lab.algorithms.cascading import CascadingPowerMethod
-from precision_lab.algorithms.matrices import create_experiment_matrix
+from precision_lab.algorithms.matrices import create_experiment
 from precision_lab.algorithms.power_method import PowerIteration
 
 # Test parameters - MUST match generate_golden.py
@@ -53,7 +53,7 @@ class TestSinglePrecisionReproducibility:
     @pytest.fixture
     def experiment(self):
         """Create experiment matrix with fixed parameters."""
-        return create_experiment_matrix(
+        return create_experiment(
             MATRIX_SIZE,
             CONDITION_NUMBER,
             seed=SEED,
@@ -331,7 +331,7 @@ class TestTraceStatistics:
     @pytest.fixture
     def experiment(self):
         """Create experiment matrix with fixed parameters."""
-        return create_experiment_matrix(
+        return create_experiment(
             MATRIX_SIZE,
             CONDITION_NUMBER,
             seed=SEED,

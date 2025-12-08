@@ -69,12 +69,12 @@ class PowerIteration:
     pre-allocated vectors in an Nx2 matrix (column-major for BLAS efficiency).
 
     Example:
-        >>> from precision_lab.algorithms.matrices import create_experiment_matrix
-        >>> exp = create_experiment_matrix(100, condition_number=10)
-        >>> engine = PowerIteration(exp.matrix, "fp32")
+        >>> from precision_lab.algorithms.matrices import create_experiment
+        >>> experiment = create_experiment(100, condition_number=10)
+        >>> engine = PowerIteration(experiment.matrix, "fp32")
         >>> for i in range(100):
         ...     result = engine.iterate()
-        ...     conv = engine.check_convergence(result.eigenvalue, exp.true_eigenvalue)
+        ...     conv = engine.check_convergence(result.eigenvalue, experiment.true_eigenvalue)
         ...     if conv.eigenvalue_converged and conv.residual_converged:
         ...         break
     """

@@ -5,10 +5,10 @@ import pytest
 
 from precision_lab.algorithms.matrices import (
     DEFAULT_SEED,
-    ExperimentMatrix,
+    ExperimentSetup,
     MatrixFingerprint,
     compute_fingerprint,
-    create_experiment_matrix,
+    create_experiment,
     create_geometric_spectrum_matrix,
     create_linear_spectrum_matrix,
     create_slow_convergence_matrix,
@@ -160,17 +160,17 @@ class TestComputeFingerprint:
         assert np.isclose(fp1.frobenius_norm, fp2.frobenius_norm)
 
 
-class TestCreateExperimentMatrix:
-    """Tests for create_experiment_matrix function."""
+class TestCreateExperimentSetup:
+    """Tests for create_experiment function."""
 
-    def test_returns_experiment_matrix(self) -> None:
-        """Should return ExperimentMatrix instance."""
-        exp = create_experiment_matrix(50, 100)
-        assert isinstance(exp, ExperimentMatrix)
+    def test_returns_experiment_setup(self) -> None:
+        """Should return ExperimentSetup instance."""
+        exp = create_experiment(50, 100)
+        assert isinstance(exp, ExperimentSetup)
 
-    def test_experiment_matrix_fields(self) -> None:
-        """ExperimentMatrix should have all required fields."""
-        exp = create_experiment_matrix(50, 100)
+    def test_experiment_setup_fields(self) -> None:
+        """ExperimentSetup should have all required fields."""
+        exp = create_experiment(50, 100)
 
         assert exp.matrix.shape == (50, 50)
         assert isinstance(exp.fingerprint, MatrixFingerprint)
@@ -179,36 +179,36 @@ class TestCreateExperimentMatrix:
 
     def test_initial_vector_normalized(self) -> None:
         """Initial vector should be normalized."""
-        exp = create_experiment_matrix(50, 100)
+        exp = create_experiment(50, 100)
         norm = np.linalg.norm(exp.initial_vector)
         assert np.isclose(norm, 1.0)
 
     def test_true_eigenvalue_is_largest(self) -> None:
         """True eigenvalue should be the largest eigenvalue."""
-        exp = create_experiment_matrix(50, 100)
+        exp = create_experiment(50, 100)
         eigenvalues = np.linalg.eigvalsh(exp.matrix)
         assert np.isclose(exp.true_eigenvalue, eigenvalues.max())
 
     @pytest.mark.parametrize("conv_type", ["slow", "linear", "geometric"])
     def test_convergence_types(self, conv_type: str) -> None:
         """All convergence types should work."""
-        exp = create_experiment_matrix(50, 100, convergence_type=conv_type)
+        exp = create_experiment(50, 100, convergence_type=conv_type)
         assert exp.fingerprint.convergence_type == conv_type
 
     def test_unknown_convergence_type_raises(self) -> None:
         """Unknown convergence type should raise ValueError."""
         with pytest.raises(ValueError, match="Unknown convergence_type"):
-            create_experiment_matrix(50, 100, convergence_type="invalid")
+            create_experiment(50, 100, convergence_type="invalid")
 
     def test_default_seed(self) -> None:
         """Default seed should be DEFAULT_SEED."""
-        exp = create_experiment_matrix(50, 100)
+        exp = create_experiment(50, 100)
         assert exp.fingerprint.seed == DEFAULT_SEED
 
     def test_reproducibility(self) -> None:
         """Same parameters should produce identical results."""
-        exp1 = create_experiment_matrix(50, 100, seed=42)
-        exp2 = create_experiment_matrix(50, 100, seed=42)
+        exp1 = create_experiment(50, 100, seed=42)
+        exp2 = create_experiment(50, 100, seed=42)
 
         assert np.allclose(exp1.matrix, exp2.matrix)
         assert np.allclose(exp1.initial_vector, exp2.initial_vector)
