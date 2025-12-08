@@ -4,745 +4,745 @@
     "condition_number": 100.0,
     "seed": 42,
     "convergence_type": "linear",
-    "true_eigenvalue": 99.99999999999997,
-    "total_iterations": 1038,
+    "true_eigenvalue": 99.99999999999999,
+    "total_iterations": 1085,
     "converged": false,
-    "final_residual": 1.3386441812582666e-07
+    "final_residual": 2.3932998307223836e-07
   },
   "segments": [
     {
       "precision": "FP8",
-      "iterations": 36,
+      "iterations": 37,
       "start_iteration": 0,
-      "end_iteration": 36,
-      "start_residual": 0.2775467523588591,
-      "end_residual": 0.03458688659909395
+      "end_iteration": 37,
+      "start_residual": 0.23648245907597817,
+      "end_residual": 0.03709728089648984
     },
     {
       "precision": "FP16",
-      "iterations": 181,
-      "start_iteration": 36,
-      "end_iteration": 217,
-      "start_residual": 0.02302676998473881,
-      "end_residual": 0.0009754838319241987
+      "iterations": 147,
+      "start_iteration": 37,
+      "end_iteration": 184,
+      "start_residual": 0.022876557301137673,
+      "end_residual": 0.0022572462904630777
     },
     {
       "precision": "FP32",
-      "iterations": 745,
-      "start_iteration": 217,
-      "end_iteration": 962,
-      "start_residual": 0.0007377226169687062,
-      "end_residual": 3.6995125305676756e-07
+      "iterations": 888,
+      "start_iteration": 184,
+      "end_iteration": 1072,
+      "start_residual": 0.0019845719061933995,
+      "end_residual": 3.157120160466708e-07
     },
     {
       "precision": "FP64",
-      "iterations": 76,
-      "start_iteration": 962,
-      "end_iteration": 1038,
-      "start_residual": 2.8495167210353474e-07,
-      "end_residual": 1.3386441812582666e-07
+      "iterations": 13,
+      "start_iteration": 1072,
+      "end_iteration": 1085,
+      "start_residual": 2.708784709195843e-07,
+      "end_residual": 2.3932998307223836e-07
     }
   ],
   "trace": [
     {
       "iteration": 0,
       "precision": "FP8",
-      "eigenvalue": 71.56390380859375,
-      "relative_error": 0.2843609619140623,
-      "residual_norm": 0.2775467523588591
+      "eigenvalue": 73.4759521484375,
+      "relative_error": 0.2652404785156249,
+      "residual_norm": 0.23648245907597817
     },
     {
       "iteration": 1,
       "precision": "FP8",
-      "eigenvalue": 80.51963806152344,
-      "relative_error": 0.1948036193847654,
-      "residual_norm": 0.1792111686318134
+      "eigenvalue": 81.085693359375,
+      "relative_error": 0.1891430664062499,
+      "residual_norm": 0.15819364844561454
     },
     {
       "iteration": 2,
       "precision": "FP8",
-      "eigenvalue": 86.10484313964844,
-      "relative_error": 0.13895156860351537,
-      "residual_norm": 0.13190128936978943
+      "eigenvalue": 84.5224609375,
+      "relative_error": 0.15477539062499987,
+      "residual_norm": 0.12355140860514259
     },
     {
       "iteration": 3,
       "precision": "FP8",
-      "eigenvalue": 86.75557708740234,
-      "relative_error": 0.1324442291259763,
-      "residual_norm": 0.11148353196124361
+      "eigenvalue": 88.3812255859375,
+      "relative_error": 0.11618774414062487,
+      "residual_norm": 0.10323914158148646
     },
     {
       "iteration": 4,
       "precision": "FP8",
-      "eigenvalue": 90.664306640625,
-      "relative_error": 0.09335693359374975,
-      "residual_norm": 0.09118074855406556
+      "eigenvalue": 89.39093017578125,
+      "relative_error": 0.10609069824218738,
+      "residual_norm": 0.09193588651035041
     },
     {
       "iteration": 5,
       "precision": "FP8",
-      "eigenvalue": 93.20340728759766,
-      "relative_error": 0.06796592712402318,
-      "residual_norm": 0.08343476524693334
+      "eigenvalue": 90.58078002929688,
+      "relative_error": 0.09419219970703112,
+      "residual_norm": 0.08461460671306074
     },
     {
       "iteration": 6,
       "precision": "FP8",
-      "eigenvalue": 91.102294921875,
-      "relative_error": 0.08897705078124975,
-      "residual_norm": 0.07716680102863531
+      "eigenvalue": 89.40802001953125,
+      "relative_error": 0.10591979980468737,
+      "residual_norm": 0.08127779736313627
     },
     {
       "iteration": 7,
       "precision": "FP8",
-      "eigenvalue": 93.13720703125,
-      "relative_error": 0.06862792968749974,
-      "residual_norm": 0.06958772764730146
+      "eigenvalue": 93.33184814453125,
+      "relative_error": 0.06668151855468736,
+      "residual_norm": 0.075035229460971
     },
     {
       "iteration": 8,
       "precision": "FP8",
-      "eigenvalue": 93.17398071289062,
-      "relative_error": 0.06826019287109349,
-      "residual_norm": 0.06533285130104931
+      "eigenvalue": 90.91004180908203,
+      "relative_error": 0.09089958190917956,
+      "residual_norm": 0.07182781940244132
     },
     {
       "iteration": 9,
       "precision": "FP8",
-      "eigenvalue": 94.37469482421875,
-      "relative_error": 0.056253051757812235,
-      "residual_norm": 0.060113091699112116
+      "eigenvalue": 92.46338653564453,
+      "relative_error": 0.07536613464355456,
+      "residual_norm": 0.06556115660411888
     },
     {
       "iteration": 10,
       "precision": "FP8",
-      "eigenvalue": 93.51025390625,
-      "relative_error": 0.06489746093749973,
-      "residual_norm": 0.05835884129650413
+      "eigenvalue": 92.73121643066406,
+      "relative_error": 0.07268783569335924,
+      "residual_norm": 0.06184166020400033
     },
     {
       "iteration": 11,
       "precision": "FP8",
-      "eigenvalue": 95.30365753173828,
-      "relative_error": 0.04696342468261692,
-      "residual_norm": 0.05229778678857629
+      "eigenvalue": 92.61614990234375,
+      "relative_error": 0.07383850097656237,
+      "residual_norm": 0.061539845783520515
     },
     {
       "iteration": 12,
       "precision": "FP8",
-      "eigenvalue": 97.04452514648438,
-      "relative_error": 0.029554748535155974,
-      "residual_norm": 0.05057739099440726
+      "eigenvalue": 92.5986328125,
+      "relative_error": 0.07401367187499987,
+      "residual_norm": 0.06091814545579722
     },
     {
       "iteration": 13,
       "precision": "FP8",
-      "eigenvalue": 98.42068481445312,
-      "relative_error": 0.01579315185546847,
-      "residual_norm": 0.05162167323895065
+      "eigenvalue": 93.14988708496094,
+      "relative_error": 0.0685011291503905,
+      "residual_norm": 0.05743512695812202
     },
     {
       "iteration": 14,
       "precision": "FP8",
-      "eigenvalue": 99.05812072753906,
-      "relative_error": 0.009418792724609094,
-      "residual_norm": 0.05362636187393952
+      "eigenvalue": 94.57989501953125,
+      "relative_error": 0.054201049804687366,
+      "residual_norm": 0.05192973884287913
     },
     {
       "iteration": 15,
       "precision": "FP8",
-      "eigenvalue": 97.100341796875,
-      "relative_error": 0.028996582031249725,
-      "residual_norm": 0.04792875024012641
+      "eigenvalue": 93.4376220703125,
+      "relative_error": 0.06562377929687487,
+      "residual_norm": 0.05493297883374049
     },
     {
       "iteration": 16,
       "precision": "FP8",
-      "eigenvalue": 98.43988800048828,
-      "relative_error": 0.015601119995116907,
-      "residual_norm": 0.0444718239654416
+      "eigenvalue": 95.17422485351562,
+      "relative_error": 0.048257751464843616,
+      "residual_norm": 0.046556697078509825
     },
     {
       "iteration": 17,
       "precision": "FP8",
-      "eigenvalue": 97.03152465820312,
-      "relative_error": 0.029684753417968474,
-      "residual_norm": 0.044924628374963624
+      "eigenvalue": 95.6045150756836,
+      "relative_error": 0.043954849243163924,
+      "residual_norm": 0.044893087906879806
     },
     {
       "iteration": 18,
       "precision": "FP8",
-      "eigenvalue": 99.53277587890625,
-      "relative_error": 0.004672241210937217,
-      "residual_norm": 0.04683675748397039
+      "eigenvalue": 96.90576171875,
+      "relative_error": 0.030942382812499863,
+      "residual_norm": 0.042113425275393745
     },
     {
       "iteration": 19,
       "precision": "FP8",
-      "eigenvalue": 97.72433471679688,
-      "relative_error": 0.02275665283203097,
-      "residual_norm": 0.03897386025437952
+      "eigenvalue": 98.49639892578125,
+      "relative_error": 0.015036010742187361,
+      "residual_norm": 0.042996856722110385
     },
     {
       "iteration": 20,
       "precision": "FP8",
-      "eigenvalue": 97.14254760742188,
-      "relative_error": 0.028574523925780974,
-      "residual_norm": 0.03792679688850294
+      "eigenvalue": 100.12273406982422,
+      "relative_error": 0.0012273406982423298,
+      "residual_norm": 0.050731079335540094
     },
     {
       "iteration": 21,
       "precision": "FP8",
-      "eigenvalue": 98.42510986328125,
-      "relative_error": 0.01574890136718722,
-      "residual_norm": 0.03682318073505843
+      "eigenvalue": 95.4583740234375,
+      "relative_error": 0.04541625976562486,
+      "residual_norm": 0.04164956980261277
     },
     {
       "iteration": 22,
       "precision": "FP8",
-      "eigenvalue": 97.306640625,
-      "relative_error": 0.026933593749999724,
-      "residual_norm": 0.03662726863877113
+      "eigenvalue": 96.63497924804688,
+      "relative_error": 0.033650207519531114,
+      "residual_norm": 0.03414528366211622
     },
     {
       "iteration": 23,
       "precision": "FP8",
-      "eigenvalue": 97.2440185546875,
-      "relative_error": 0.027559814453124724,
-      "residual_norm": 0.034815799899349895
+      "eigenvalue": 98.15625,
+      "relative_error": 0.01843749999999986,
+      "residual_norm": 0.03210221616230227
     },
     {
       "iteration": 24,
       "precision": "FP8",
-      "eigenvalue": 97.56759643554688,
-      "relative_error": 0.02432403564453097,
-      "residual_norm": 0.035402096561260296
+      "eigenvalue": 99.1439208984375,
+      "relative_error": 0.008560791015624859,
+      "residual_norm": 0.03632848363882662
     },
     {
       "iteration": 25,
       "precision": "FP8",
-      "eigenvalue": 97.49861145019531,
-      "relative_error": 0.025013885498046597,
-      "residual_norm": 0.03336717215262154
+      "eigenvalue": 98.56591796875,
+      "relative_error": 0.01434082031249986,
+      "residual_norm": 0.03372883214703079
     },
     {
       "iteration": 26,
       "precision": "FP8",
-      "eigenvalue": 97.4703598022461,
-      "relative_error": 0.025296401977538786,
-      "residual_norm": 0.03575648605538855
+      "eigenvalue": 99.020263671875,
+      "relative_error": 0.00979736328124986,
+      "residual_norm": 0.03532247144216531
     },
     {
       "iteration": 27,
       "precision": "FP8",
-      "eigenvalue": 97.19062042236328,
-      "relative_error": 0.028093795776366913,
-      "residual_norm": 0.035204153529679295
+      "eigenvalue": 98.58570861816406,
+      "relative_error": 0.014142913818359235,
+      "residual_norm": 0.03463391555791253
     },
     {
       "iteration": 28,
       "precision": "FP8",
-      "eigenvalue": 97.584716796875,
-      "relative_error": 0.024152832031249724,
-      "residual_norm": 0.037398764995423814
+      "eigenvalue": 99.102783203125,
+      "relative_error": 0.00897216796874986,
+      "residual_norm": 0.03538250158083186
     },
     {
       "iteration": 29,
       "precision": "FP8",
-      "eigenvalue": 97.54248046875,
-      "relative_error": 0.02457519531249972,
-      "residual_norm": 0.03550704744648565
+      "eigenvalue": 99.46243286132812,
+      "relative_error": 0.005375671386718609,
+      "residual_norm": 0.03570931726417419
     },
     {
       "iteration": 30,
       "precision": "FP8",
-      "eigenvalue": 97.336181640625,
-      "relative_error": 0.026638183593749722,
-      "residual_norm": 0.036275573914628705
+      "eigenvalue": 99.42434692382812,
+      "relative_error": 0.0057565307617186085,
+      "residual_norm": 0.035743761689929716
     },
     {
       "iteration": 31,
       "precision": "FP8",
-      "eigenvalue": 97.206298828125,
-      "relative_error": 0.027937011718749724,
-      "residual_norm": 0.036079622024249296
+      "eigenvalue": 99.56773376464844,
+      "relative_error": 0.004322662353515484,
+      "residual_norm": 0.03692747411442027
     },
     {
       "iteration": 32,
       "precision": "FP8",
-      "eigenvalue": 97.359619140625,
-      "relative_error": 0.026403808593749724,
-      "residual_norm": 0.03585760502335638
+      "eigenvalue": 99.79903411865234,
+      "relative_error": 0.002009658813476421,
+      "residual_norm": 0.037764691660372
     },
     {
       "iteration": 33,
       "precision": "FP8",
-      "eigenvalue": 97.5189208984375,
-      "relative_error": 0.024810791015624722,
-      "residual_norm": 0.03392003941487982
+      "eigenvalue": 99.79362487792969,
+      "relative_error": 0.002063751220702983,
+      "residual_norm": 0.03814492506144299
     },
     {
       "iteration": 34,
       "precision": "FP8",
-      "eigenvalue": 97.4176025390625,
-      "relative_error": 0.025823974609374724,
-      "residual_norm": 0.03387418428540327
+      "eigenvalue": 99.2816162109375,
+      "relative_error": 0.007183837890624859,
+      "residual_norm": 0.03622603779282931
     },
     {
       "iteration": 35,
       "precision": "FP8",
-      "eigenvalue": 97.1781005859375,
-      "relative_error": 0.028218994140624724,
-      "residual_norm": 0.03458688659909395
+      "eigenvalue": 99.13290405273438,
+      "relative_error": 0.00867095947265611,
+      "residual_norm": 0.03588661659465843
     },
     {
       "iteration": 36,
-      "precision": "FP16",
-      "eigenvalue": 98.375,
-      "relative_error": 0.01624999999999972,
-      "residual_norm": 0.02302676998473881
+      "precision": "FP8",
+      "eigenvalue": 99.26077270507812,
+      "relative_error": 0.007392272949218609,
+      "residual_norm": 0.03709728089648984
     },
     {
       "iteration": 37,
       "precision": "FP16",
-      "eigenvalue": 98.5625,
-      "relative_error": 0.01437499999999972,
-      "residual_norm": 0.02036963458453577
+      "eigenvalue": 98.125,
+      "relative_error": 0.01874999999999986,
+      "residual_norm": 0.022876557301137673
     },
     {
       "iteration": 38,
       "precision": "FP16",
-      "eigenvalue": 98.625,
-      "relative_error": 0.013749999999999719,
-      "residual_norm": 0.018826868515748687
+      "eigenvalue": 98.3125,
+      "relative_error": 0.01687499999999986,
+      "residual_norm": 0.02003461936801122
     },
     {
       "iteration": 39,
       "precision": "FP16",
-      "eigenvalue": 98.75,
-      "relative_error": 0.01249999999999972,
-      "residual_norm": 0.017713827929360874
+      "eigenvalue": 98.3125,
+      "relative_error": 0.01687499999999986,
+      "residual_norm": 0.01871699404470847
     },
     {
       "iteration": 40,
       "precision": "FP16",
-      "eigenvalue": 98.75,
-      "relative_error": 0.01249999999999972,
-      "residual_norm": 0.01683628682352377
+      "eigenvalue": 98.3125,
+      "relative_error": 0.01687499999999986,
+      "residual_norm": 0.017893211822343463
     },
     {
       "iteration": 41,
       "precision": "FP16",
-      "eigenvalue": 98.8125,
-      "relative_error": 0.011874999999999719,
-      "residual_norm": 0.01609865247047895
+      "eigenvalue": 98.375,
+      "relative_error": 0.016249999999999862,
+      "residual_norm": 0.017248760340908553
     },
     {
       "iteration": 42,
       "precision": "FP16",
-      "eigenvalue": 98.875,
-      "relative_error": 0.011249999999999719,
-      "residual_norm": 0.015461398205926664
+      "eigenvalue": 98.5625,
+      "relative_error": 0.01437499999999986,
+      "residual_norm": 0.01670563244536784
     },
     {
       "iteration": 43,
       "precision": "FP16",
-      "eigenvalue": 98.875,
-      "relative_error": 0.011249999999999719,
-      "residual_norm": 0.01490723491796616
+      "eigenvalue": 98.5,
+      "relative_error": 0.01499999999999986,
+      "residual_norm": 0.01625284492144962
     },
     {
       "iteration": 44,
       "precision": "FP16",
-      "eigenvalue": 98.875,
-      "relative_error": 0.011249999999999719,
-      "residual_norm": 0.014422680214508024
+      "eigenvalue": 98.625,
+      "relative_error": 0.01374999999999986,
+      "residual_norm": 0.015832578688444534
     },
     {
       "iteration": 45,
       "precision": "FP16",
-      "eigenvalue": 99.0,
-      "relative_error": 0.00999999999999972,
-      "residual_norm": 0.013934097084816629
+      "eigenvalue": 98.625,
+      "relative_error": 0.01374999999999986,
+      "residual_norm": 0.015467421590495143
     },
     {
       "iteration": 46,
       "precision": "FP16",
-      "eigenvalue": 99.0,
-      "relative_error": 0.00999999999999972,
-      "residual_norm": 0.013520739895336363
+      "eigenvalue": 98.6875,
+      "relative_error": 0.013124999999999859,
+      "residual_norm": 0.015127214659574324
     },
     {
       "iteration": 47,
       "precision": "FP16",
-      "eigenvalue": 99.0,
-      "relative_error": 0.00999999999999972,
-      "residual_norm": 0.013150681367792324
+      "eigenvalue": 98.8125,
+      "relative_error": 0.01187499999999986,
+      "residual_norm": 0.0148245331249698
     },
     {
       "iteration": 48,
       "precision": "FP16",
-      "eigenvalue": 99.0625,
-      "relative_error": 0.009374999999999719,
-      "residual_norm": 0.012781248944807278
+      "eigenvalue": 98.8125,
+      "relative_error": 0.01187499999999986,
+      "residual_norm": 0.014515411145283364
     },
     {
       "iteration": 49,
       "precision": "FP16",
-      "eigenvalue": 99.1875,
-      "relative_error": 0.008124999999999718,
-      "residual_norm": 0.012450341658121963
+      "eigenvalue": 98.8125,
+      "relative_error": 0.01187499999999986,
+      "residual_norm": 0.014234740565841382
     },
     {
       "iteration": 50,
       "precision": "FP16",
-      "eigenvalue": 99.0625,
-      "relative_error": 0.009374999999999719,
-      "residual_norm": 0.012179554960070125
+      "eigenvalue": 98.8125,
+      "relative_error": 0.01187499999999986,
+      "residual_norm": 0.013979686861013193
     },
     {
       "iteration": 51,
       "precision": "FP16",
-      "eigenvalue": 99.1875,
-      "relative_error": 0.008124999999999718,
-      "residual_norm": 0.011846671865221084
+      "eigenvalue": 98.875,
+      "relative_error": 0.011249999999999859,
+      "residual_norm": 0.013714966327945943
     },
     {
       "iteration": 52,
       "precision": "FP16",
-      "eigenvalue": 99.25,
-      "relative_error": 0.007499999999999718,
-      "residual_norm": 0.011581497441537929
+      "eigenvalue": 98.9375,
+      "relative_error": 0.01062499999999986,
+      "residual_norm": 0.013464595844917772
     },
     {
       "iteration": 53,
       "precision": "FP16",
-      "eigenvalue": 99.1875,
-      "relative_error": 0.008124999999999718,
-      "residual_norm": 0.011343862205764327
+      "eigenvalue": 98.9375,
+      "relative_error": 0.01062499999999986,
+      "residual_norm": 0.013232762570184823
     },
     {
       "iteration": 54,
       "precision": "FP16",
-      "eigenvalue": 99.1875,
-      "relative_error": 0.008124999999999718,
-      "residual_norm": 0.011125587142161875
+      "eigenvalue": 99.0625,
+      "relative_error": 0.00937499999999986,
+      "residual_norm": 0.013002792248937318
     },
     {
       "iteration": 55,
       "precision": "FP16",
-      "eigenvalue": 99.25,
-      "relative_error": 0.007499999999999718,
-      "residual_norm": 0.010877725509775813
+      "eigenvalue": 99.0,
+      "relative_error": 0.00999999999999986,
+      "residual_norm": 0.01277667908363206
     },
     {
       "iteration": 56,
       "precision": "FP16",
-      "eigenvalue": 99.375,
-      "relative_error": 0.006249999999999718,
-      "residual_norm": 0.01067039124557956
+      "eigenvalue": 99.0625,
+      "relative_error": 0.00937499999999986,
+      "residual_norm": 0.012546353466889586
     },
     {
       "iteration": 57,
       "precision": "FP16",
-      "eigenvalue": 99.25,
-      "relative_error": 0.007499999999999718,
-      "residual_norm": 0.01049591742730598
+      "eigenvalue": 99.125,
+      "relative_error": 0.008749999999999859,
+      "residual_norm": 0.012330629143946956
     },
     {
       "iteration": 58,
       "precision": "FP16",
-      "eigenvalue": 99.375,
-      "relative_error": 0.006249999999999718,
-      "residual_norm": 0.010263152423372435
+      "eigenvalue": 99.125,
+      "relative_error": 0.008749999999999859,
+      "residual_norm": 0.012117429954716829
     },
     {
       "iteration": 59,
       "precision": "FP16",
-      "eigenvalue": 99.375,
-      "relative_error": 0.006249999999999718,
-      "residual_norm": 0.01008036489734577
+      "eigenvalue": 99.125,
+      "relative_error": 0.008749999999999859,
+      "residual_norm": 0.01191213984372122
     },
     {
       "iteration": 60,
       "precision": "FP16",
-      "eigenvalue": 99.375,
-      "relative_error": 0.006249999999999718,
-      "residual_norm": 0.00990916378398935
+      "eigenvalue": 99.125,
+      "relative_error": 0.008749999999999859,
+      "residual_norm": 0.011719425911581472
     },
     {
       "iteration": 61,
       "precision": "FP16",
-      "eigenvalue": 99.5,
-      "relative_error": 0.004999999999999717,
-      "residual_norm": 0.009768098408656627
+      "eigenvalue": 99.125,
+      "relative_error": 0.008749999999999859,
+      "residual_norm": 0.011535981762697687
     },
     {
       "iteration": 62,
       "precision": "FP16",
-      "eigenvalue": 99.4375,
-      "relative_error": 0.005624999999999717,
-      "residual_norm": 0.00957667901519535
+      "eigenvalue": 99.25,
+      "relative_error": 0.007499999999999859,
+      "residual_norm": 0.011294777766615994
     },
     {
       "iteration": 63,
       "precision": "FP16",
-      "eigenvalue": 99.5,
-      "relative_error": 0.004999999999999717,
-      "residual_norm": 0.009428752097609192
+      "eigenvalue": 99.25,
+      "relative_error": 0.007499999999999859,
+      "residual_norm": 0.011099494986011847
     },
     {
       "iteration": 64,
       "precision": "FP16",
-      "eigenvalue": 99.4375,
-      "relative_error": 0.005624999999999717,
-      "residual_norm": 0.009275578041350877
+      "eigenvalue": 99.25,
+      "relative_error": 0.007499999999999859,
+      "residual_norm": 0.010911181986174757
     },
     {
       "iteration": 65,
       "precision": "FP16",
-      "eigenvalue": 99.5,
-      "relative_error": 0.004999999999999717,
-      "residual_norm": 0.009121124670847207
+      "eigenvalue": 99.375,
+      "relative_error": 0.006249999999999859,
+      "residual_norm": 0.010726732194553945
     },
     {
       "iteration": 66,
       "precision": "FP16",
-      "eigenvalue": 99.5,
-      "relative_error": 0.004999999999999717,
-      "residual_norm": 0.008979384928158035
+      "eigenvalue": 99.25,
+      "relative_error": 0.007499999999999859,
+      "residual_norm": 0.010555335149856796
     },
     {
       "iteration": 67,
       "precision": "FP16",
-      "eigenvalue": 99.5625,
-      "relative_error": 0.004374999999999717,
-      "residual_norm": 0.008848788991495953
+      "eigenvalue": 99.4375,
+      "relative_error": 0.005624999999999858,
+      "residual_norm": 0.010359818720403207
     },
     {
       "iteration": 68,
       "precision": "FP16",
-      "eigenvalue": 99.625,
-      "relative_error": 0.0037499999999997167,
-      "residual_norm": 0.008745510325595294
+      "eigenvalue": 99.375,
+      "relative_error": 0.006249999999999859,
+      "residual_norm": 0.01014383760006791
     },
     {
       "iteration": 69,
       "precision": "FP16",
-      "eigenvalue": 99.5625,
-      "relative_error": 0.004374999999999717,
-      "residual_norm": 0.008570889232845913
+      "eigenvalue": 99.4375,
+      "relative_error": 0.005624999999999858,
+      "residual_norm": 0.009967441352066609
     },
     {
       "iteration": 70,
       "precision": "FP16",
-      "eigenvalue": 99.5625,
-      "relative_error": 0.004374999999999717,
-      "residual_norm": 0.008441310091174437
+      "eigenvalue": 99.5,
+      "relative_error": 0.004999999999999859,
+      "residual_norm": 0.009814617743483418
     },
     {
       "iteration": 71,
       "precision": "FP16",
-      "eigenvalue": 99.5625,
-      "relative_error": 0.004374999999999717,
-      "residual_norm": 0.008315042091325216
+      "eigenvalue": 99.375,
+      "relative_error": 0.006249999999999859,
+      "residual_norm": 0.009623427794215407
     },
     {
       "iteration": 72,
       "precision": "FP16",
       "eigenvalue": 99.5,
-      "relative_error": 0.004999999999999717,
-      "residual_norm": 0.008243514425545604
+      "relative_error": 0.004999999999999859,
+      "residual_norm": 0.00943726581357209
     },
     {
       "iteration": 73,
       "precision": "FP16",
-      "eigenvalue": 99.5625,
-      "relative_error": 0.004374999999999717,
-      "residual_norm": 0.008077411772299562
+      "eigenvalue": 99.375,
+      "relative_error": 0.006249999999999859,
+      "residual_norm": 0.009305002180890972
     },
     {
       "iteration": 74,
       "precision": "FP16",
-      "eigenvalue": 99.5625,
-      "relative_error": 0.004374999999999717,
-      "residual_norm": 0.007964926532851252
+      "eigenvalue": 99.5,
+      "relative_error": 0.004999999999999859,
+      "residual_norm": 0.009084559631092984
     },
     {
       "iteration": 75,
       "precision": "FP16",
-      "eigenvalue": 99.5625,
-      "relative_error": 0.004374999999999717,
-      "residual_norm": 0.007856308664007614
+      "eigenvalue": 99.4375,
+      "relative_error": 0.005624999999999858,
+      "residual_norm": 0.008942782817410117
     },
     {
       "iteration": 76,
       "precision": "FP16",
-      "eigenvalue": 99.5625,
-      "relative_error": 0.004374999999999717,
-      "residual_norm": 0.007750485479480519
+      "eigenvalue": 99.5,
+      "relative_error": 0.004999999999999859,
+      "residual_norm": 0.008755834379930556
     },
     {
       "iteration": 77,
       "precision": "FP16",
-      "eigenvalue": 99.625,
-      "relative_error": 0.0037499999999997167,
-      "residual_norm": 0.007596105899942233
+      "eigenvalue": 99.5,
+      "relative_error": 0.004999999999999859,
+      "residual_norm": 0.008597099698002621
     },
     {
       "iteration": 78,
       "precision": "FP16",
-      "eigenvalue": 99.6875,
-      "relative_error": 0.0031249999999997165,
-      "residual_norm": 0.00747807091499831
+      "eigenvalue": 99.625,
+      "relative_error": 0.0037499999999998585,
+      "residual_norm": 0.008463480298970871
     },
     {
       "iteration": 79,
       "precision": "FP16",
-      "eigenvalue": 99.6875,
-      "relative_error": 0.0031249999999997165,
-      "residual_norm": 0.007360874917480619
+      "eigenvalue": 99.5625,
+      "relative_error": 0.004374999999999858,
+      "residual_norm": 0.008273570927793624
     },
     {
       "iteration": 80,
       "precision": "FP16",
-      "eigenvalue": 99.6875,
-      "relative_error": 0.0031249999999997165,
-      "residual_norm": 0.0072492646133579626
+      "eigenvalue": 99.5625,
+      "relative_error": 0.004374999999999858,
+      "residual_norm": 0.008120582713281308
     },
     {
       "iteration": 81,
       "precision": "FP16",
-      "eigenvalue": 99.6875,
-      "relative_error": 0.0031249999999997165,
-      "residual_norm": 0.007138379255687826
+      "eigenvalue": 99.5,
+      "relative_error": 0.004999999999999859,
+      "residual_norm": 0.008018685981836046
     },
     {
       "iteration": 82,
       "precision": "FP16",
-      "eigenvalue": 99.75,
-      "relative_error": 0.0024999999999997164,
-      "residual_norm": 0.007039942801828989
+      "eigenvalue": 99.6875,
+      "relative_error": 0.0031249999999998584,
+      "residual_norm": 0.007865501526302568
     },
     {
       "iteration": 83,
       "precision": "FP16",
       "eigenvalue": 99.625,
-      "relative_error": 0.0037499999999997167,
-      "residual_norm": 0.006983975968753762
+      "relative_error": 0.0037499999999998585,
+      "residual_norm": 0.007674872558239325
     },
     {
       "iteration": 84,
       "precision": "FP16",
-      "eigenvalue": 99.75,
-      "relative_error": 0.0024999999999997164,
-      "residual_norm": 0.006813980385934045
+      "eigenvalue": 99.625,
+      "relative_error": 0.0037499999999998585,
+      "residual_norm": 0.007531011416380926
     },
     {
       "iteration": 85,
       "precision": "FP16",
-      "eigenvalue": 99.6875,
-      "relative_error": 0.0031249999999997165,
-      "residual_norm": 0.006723801140825841
+      "eigenvalue": 99.625,
+      "relative_error": 0.0037499999999998585,
+      "residual_norm": 0.007395174838216636
     },
     {
       "iteration": 86,
       "precision": "FP16",
-      "eigenvalue": 99.6875,
-      "relative_error": 0.0031249999999997165,
-      "residual_norm": 0.006626215928133396
+      "eigenvalue": 99.625,
+      "relative_error": 0.0037499999999998585,
+      "residual_norm": 0.007260600950571433
     },
     {
       "iteration": 87,
       "precision": "FP16",
       "eigenvalue": 99.6875,
-      "relative_error": 0.0031249999999997165,
-      "residual_norm": 0.006530223747159755
+      "relative_error": 0.0031249999999998584,
+      "residual_norm": 0.007130192605898033
     },
     {
       "iteration": 88,
       "precision": "FP16",
       "eigenvalue": 99.75,
-      "relative_error": 0.0024999999999997164,
-      "residual_norm": 0.006394479222756248
+      "relative_error": 0.0024999999999998582,
+      "residual_norm": 0.007042520199573423
     },
     {
       "iteration": 89,
       "precision": "FP16",
-      "eigenvalue": 99.75,
-      "relative_error": 0.0024999999999997164,
-      "residual_norm": 0.006293958973420283
+      "eigenvalue": 99.6875,
+      "relative_error": 0.0031249999999998584,
+      "residual_norm": 0.0068661843355489515
     },
     {
       "iteration": 90,
       "precision": "FP16",
-      "eigenvalue": 99.8125,
-      "relative_error": 0.0018749999999997163,
-      "residual_norm": 0.006201395084443623
+      "eigenvalue": 99.6875,
+      "relative_error": 0.0031249999999998584,
+      "residual_norm": 0.006742600456997246
     },
     {
       "iteration": 91,
       "precision": "FP16",
-      "eigenvalue": 99.75,
-      "relative_error": 0.0024999999999997164,
-      "residual_norm": 0.006100260757225614
+      "eigenvalue": 99.6875,
+      "relative_error": 0.0031249999999998584,
+      "residual_norm": 0.006620007745177571
     },
     {
       "iteration": 92,
       "precision": "FP16",
-      "eigenvalue": 99.8125,
-      "relative_error": 0.0018749999999997163,
-      "residual_norm": 0.005994862614837918
+      "eigenvalue": 99.6875,
+      "relative_error": 0.0031249999999998584,
+      "residual_norm": 0.006500177338211705
     },
     {
       "iteration": 93,
       "precision": "FP16",
-      "eigenvalue": 99.8125,
-      "relative_error": 0.0018749999999997163,
-      "residual_norm": 0.005895883928433226
+      "eigenvalue": 99.6875,
+      "relative_error": 0.0031249999999998584,
+      "residual_norm": 0.00638574063441839
     },
     {
       "iteration": 94,
       "precision": "FP16",
-      "eigenvalue": 99.75,
-      "relative_error": 0.0024999999999997164,
-      "residual_norm": 0.005826617306919075
+      "eigenvalue": 99.625,
+      "relative_error": 0.0037499999999998585,
+      "residual_norm": 0.006339168339999304
     },
     {
       "iteration": 95,
       "precision": "FP16",
-      "eigenvalue": 99.75,
-      "relative_error": 0.0024999999999997164,
-      "residual_norm": 0.005740568220212836
+      "eigenvalue": 99.6875,
+      "relative_error": 0.0031249999999998584,
+      "residual_norm": 0.006171915847914599
     },
     {
       "iteration": 96,
       "precision": "FP16",
-      "eigenvalue": 99.75,
-      "relative_error": 0.0024999999999997164,
-      "residual_norm": 0.005657626911294239
+      "eigenvalue": 99.625,
+      "relative_error": 0.0037499999999998585,
+      "residual_norm": 0.006147869941082684
     },
     {
       "iteration": 97,
       "precision": "FP16",
-      "eigenvalue": 99.8125,
-      "relative_error": 0.0018749999999997163,
-      "residual_norm": 0.005521901804998261
+      "eigenvalue": 99.75,
+      "relative_error": 0.0024999999999998582,
+      "residual_norm": 0.0059445238961673376
     },
     {
       "iteration": 98,
       "precision": "FP16",
-      "eigenvalue": 99.8125,
-      "relative_error": 0.0018749999999997163,
-      "residual_norm": 0.005432928133842458
+      "eigenvalue": 99.6875,
+      "relative_error": 0.0031249999999998584,
+      "residual_norm": 0.005871797749301026
     },
     {
       "iteration": 99,
       "precision": "FP16",
-      "eigenvalue": 99.875,
-      "relative_error": 0.0012499999999997162,
-      "residual_norm": 0.005352971725605589
+      "eigenvalue": 99.6875,
+      "relative_error": 0.0031249999999998584,
+      "residual_norm": 0.005779337828744799
     }
   ]
 }

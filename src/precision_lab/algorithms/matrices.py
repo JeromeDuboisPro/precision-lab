@@ -256,8 +256,9 @@ def create_experiment(
 ) -> ExperimentSetup:
     """Create complete experiment setup: matrix, initial vector, and metadata.
 
-    Uses a single RNG instance (MT19937 for reproducibility) to generate both
-    the matrix and initial vector in natural sequence - no skip hacks needed.
+    Uses a single RNG instance (PCG64 via default_rng) to generate both
+    the matrix and initial vector in natural sequence. This is consistent
+    with standalone matrix functions like create_slow_convergence_matrix().
 
     Args:
         n: Matrix dimension.
@@ -272,12 +273,14 @@ def create_experiment(
     Example:
         >>> experiment = create_experiment(100, condition_number=100.0)
         >>> print(f"True λ = {experiment.true_eigenvalue:.6f}")
-    """
-    from numpy.random import Generator, MT19937
 
-    # Single RNG instance for entire experiment setup
-    # Uses MT19937 for reproducibility with legacy code
-    rng = Generator(MT19937(seed=seed))
+    Note:
+        For exact reproduction of precision-lens post 3 traces, use
+        create_legacy_experiment() which matches the original RNG behavior.
+    """
+    # Single RNG instance using PCG64 (NumPy default)
+    # Consistent with standalone matrix functions
+    rng = np.random.default_rng(seed)
 
     # Build eigenvalue spectrum based on convergence type
     if convergence_type == "slow":
@@ -323,6 +326,88 @@ def create_experiment(
 create_experiment_matrix = create_experiment
 
 
+def create_legacy_experiment(
+    n: int,
+    condition_number: float,
+    *,
+    seed: int = DEFAULT_SEED,
+    convergence_type: str = "slow",
+    eigenvalue_gap: float = 1.1,
+) -> ExperimentSetup:
+    """Create experiment setup matching precision-lens post 3 behavior exactly.
+
+    This function reproduces the exact RNG behavior from precision-lens v3,
+    enabling comparison with historical results and validation.
+
+    Historical Context:
+        precision-lens used a mixed RNG approach for experiment setup:
+        - Matrix generation: PCG64 (np.random.default_rng)
+        - Initial vector: MT19937 (np.random.seed) with skip pattern
+
+        The skip pattern consumed n×n random calls before generating the
+        initial vector, matching the number of calls used for matrix generation.
+
+    Args:
+        n: Matrix dimension.
+        condition_number: Desired condition number κ = λ_max / λ_min.
+        seed: Random seed (default: 42 for reproducibility).
+        convergence_type: "slow" (10% gap), "linear", or "geometric".
+        eigenvalue_gap: For "slow" type, ratio λ₁/λ₂ (default 1.1).
+
+    Returns:
+        ExperimentSetup matching precision-lens post 3 output exactly.
+
+    Example:
+        >>> # Reproduce precision-lens post 3 traces
+        >>> legacy = create_legacy_experiment(10, condition_number=100.0)
+        >>> modern = create_experiment(10, condition_number=100.0)
+        >>> # legacy.matrix == modern.matrix (same PCG64 seed)
+        >>> # legacy.initial_vector != modern.initial_vector (different RNG path)
+    """
+    # Matrix: PCG64 (same as standalone functions and create_experiment)
+    rng = np.random.default_rng(seed)
+
+    # Build eigenvalue spectrum based on convergence type
+    if convergence_type == "slow":
+        eigenvalues = np.zeros(n)
+        eigenvalues[0] = condition_number
+        eigenvalues[1] = condition_number / eigenvalue_gap
+        if n > 2:
+            remaining = np.geomspace(eigenvalues[1], 1.0, n - 1)
+            eigenvalues[1:] = remaining
+    elif convergence_type == "linear":
+        eigenvalues = np.linspace(1.0, condition_number, n)
+    elif convergence_type == "geometric":
+        eigenvalues = np.geomspace(1.0, condition_number, n)
+    else:
+        msg = f"Unknown convergence_type: {convergence_type}"
+        raise ValueError(msg)
+
+    # Random orthogonal matrix via QR decomposition (PCG64)
+    Q, _ = np.linalg.qr(rng.standard_normal((n, n)))
+    matrix = Q @ np.diag(eigenvalues) @ Q.T
+
+    # Initial vector: MT19937 with legacy skip pattern
+    # This matches precision-lens post 3 behavior exactly
+    np.random.seed(seed)  # noqa: NPY002 - intentional legacy RNG for compatibility
+    _ = np.random.randn(n * n)  # noqa: NPY002 - skip matrix generation calls
+    initial_vector = np.random.randn(n)  # noqa: NPY002 - legacy RNG
+    initial_vector = initial_vector / np.linalg.norm(initial_vector)
+
+    fingerprint = compute_fingerprint(
+        matrix, seed=seed, convergence_type=convergence_type
+    )
+
+    true_eigenvalue = float(np.max(np.linalg.eigvalsh(matrix)))
+
+    return ExperimentSetup(
+        matrix=matrix,
+        fingerprint=fingerprint,
+        initial_vector=initial_vector,
+        true_eigenvalue=true_eigenvalue,
+    )
+
+
 __all__ = [
     "DEFAULT_SEED",
     "MatrixFingerprint",
@@ -334,4 +419,5 @@ __all__ = [
     "compute_fingerprint",
     "create_experiment",
     "create_experiment_matrix",  # Backwards compatibility alias
+    "create_legacy_experiment",
 ]

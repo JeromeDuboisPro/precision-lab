@@ -10,6 +10,7 @@ from precision_lab.algorithms.matrices import (
     compute_fingerprint,
     create_experiment,
     create_geometric_spectrum_matrix,
+    create_legacy_experiment,
     create_linear_spectrum_matrix,
     create_slow_convergence_matrix,
 )
@@ -213,3 +214,82 @@ class TestCreateExperimentSetup:
         assert np.allclose(exp1.matrix, exp2.matrix)
         assert np.allclose(exp1.initial_vector, exp2.initial_vector)
         assert exp1.true_eigenvalue == exp2.true_eigenvalue
+
+
+class TestRngConsistency:
+    """Tests ensuring RNG consistency between create_experiment and standalone functions."""
+
+    def test_slow_convergence_matrix_matches_standalone(self) -> None:
+        """create_experiment(type='slow') should produce same matrix as standalone."""
+        n, kappa, seed = 50, 100.0, 42
+        exp = create_experiment(n, kappa, seed=seed, convergence_type="slow")
+        standalone = create_slow_convergence_matrix(n, kappa, seed=seed)
+        assert np.allclose(exp.matrix, standalone)
+
+    def test_linear_convergence_matrix_matches_standalone(self) -> None:
+        """create_experiment(type='linear') should produce same matrix as standalone."""
+        n, kappa, seed = 50, 100.0, 42
+        exp = create_experiment(n, kappa, seed=seed, convergence_type="linear")
+        standalone = create_linear_spectrum_matrix(n, kappa, seed=seed)
+        assert np.allclose(exp.matrix, standalone)
+
+    def test_geometric_convergence_matrix_matches_standalone(self) -> None:
+        """create_experiment(type='geometric') should produce same matrix as standalone."""
+        n, kappa, seed = 50, 100.0, 42
+        exp = create_experiment(n, kappa, seed=seed, convergence_type="geometric")
+        standalone = create_geometric_spectrum_matrix(n, kappa, seed=seed)
+        assert np.allclose(exp.matrix, standalone)
+
+
+class TestCreateLegacyExperiment:
+    """Tests for create_legacy_experiment function."""
+
+    def test_returns_experiment_setup(self) -> None:
+        """Should return ExperimentSetup instance."""
+        exp = create_legacy_experiment(50, 100)
+        assert isinstance(exp, ExperimentSetup)
+
+    def test_experiment_setup_fields(self) -> None:
+        """ExperimentSetup should have all required fields."""
+        exp = create_legacy_experiment(50, 100)
+
+        assert exp.matrix.shape == (50, 50)
+        assert isinstance(exp.fingerprint, MatrixFingerprint)
+        assert exp.initial_vector.shape == (50,)
+        assert isinstance(exp.true_eigenvalue, float)
+
+    def test_initial_vector_normalized(self) -> None:
+        """Initial vector should be normalized."""
+        exp = create_legacy_experiment(50, 100)
+        norm = np.linalg.norm(exp.initial_vector)
+        assert np.isclose(norm, 1.0)
+
+    def test_matrix_matches_modern_experiment(self) -> None:
+        """Legacy and modern should produce same matrix (both use PCG64)."""
+        n, kappa, seed = 50, 100.0, 42
+        legacy = create_legacy_experiment(n, kappa, seed=seed)
+        modern = create_experiment(n, kappa, seed=seed)
+        assert np.allclose(legacy.matrix, modern.matrix)
+
+    def test_initial_vector_differs_from_modern(self) -> None:
+        """Legacy initial vector should differ from modern (different RNG paths)."""
+        n, kappa, seed = 50, 100.0, 42
+        legacy = create_legacy_experiment(n, kappa, seed=seed)
+        modern = create_experiment(n, kappa, seed=seed)
+        # They use different RNG methods for initial vector
+        assert not np.allclose(legacy.initial_vector, modern.initial_vector)
+
+    def test_reproducibility(self) -> None:
+        """Same parameters should produce identical results."""
+        exp1 = create_legacy_experiment(50, 100, seed=42)
+        exp2 = create_legacy_experiment(50, 100, seed=42)
+
+        assert np.allclose(exp1.matrix, exp2.matrix)
+        assert np.allclose(exp1.initial_vector, exp2.initial_vector)
+        assert exp1.true_eigenvalue == exp2.true_eigenvalue
+
+    @pytest.mark.parametrize("conv_type", ["slow", "linear", "geometric"])
+    def test_convergence_types(self, conv_type: str) -> None:
+        """All convergence types should work."""
+        exp = create_legacy_experiment(50, 100, convergence_type=conv_type)
+        assert exp.fingerprint.convergence_type == conv_type

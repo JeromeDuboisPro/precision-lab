@@ -23,6 +23,7 @@ from precision_lab.algorithms.matrices import (
     create_experiment,
     create_experiment_matrix,
     create_geometric_spectrum_matrix,
+    create_legacy_experiment,
     create_linear_spectrum_matrix,
     create_slow_convergence_matrix,
 )
@@ -58,6 +59,7 @@ __all__ = [
     "create_experiment",
     "create_experiment_matrix",  # Backwards compatibility alias
     "create_geometric_spectrum_matrix",
+    "create_legacy_experiment",
     "create_linear_spectrum_matrix",
     "create_slow_convergence_matrix",
     # Plateau detection
