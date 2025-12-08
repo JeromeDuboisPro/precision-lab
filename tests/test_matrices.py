@@ -264,19 +264,20 @@ class TestCreateLegacyExperiment:
         norm = np.linalg.norm(exp.initial_vector)
         assert np.isclose(norm, 1.0)
 
-    def test_matrix_matches_modern_experiment(self) -> None:
-        """Legacy and modern should produce same matrix (both use PCG64)."""
+    def test_matrix_differs_from_modern_experiment(self) -> None:
+        """Legacy matrix differs from modern (MT19937 vs PCG64)."""
         n, kappa, seed = 50, 100.0, 42
         legacy = create_legacy_experiment(n, kappa, seed=seed)
         modern = create_experiment(n, kappa, seed=seed)
-        assert np.allclose(legacy.matrix, modern.matrix)
+        # Legacy uses MT19937, modern uses PCG64 - different sequences
+        assert not np.allclose(legacy.matrix, modern.matrix)
 
     def test_initial_vector_differs_from_modern(self) -> None:
-        """Legacy initial vector should differ from modern (different RNG paths)."""
+        """Legacy initial vector differs from modern (MT19937 vs PCG64)."""
         n, kappa, seed = 50, 100.0, 42
         legacy = create_legacy_experiment(n, kappa, seed=seed)
         modern = create_experiment(n, kappa, seed=seed)
-        # They use different RNG methods for initial vector
+        # Legacy uses MT19937, modern uses PCG64 - different sequences
         assert not np.allclose(legacy.initial_vector, modern.initial_vector)
 
     def test_reproducibility(self) -> None:

@@ -19,6 +19,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
+from typing import Any
 
 import numpy as np
 
@@ -63,7 +64,7 @@ class PlateauDetector(ABC):
         """
 
     @abstractmethod
-    def get_config(self, precision: str) -> dict:
+    def get_config(self, precision: str) -> dict[str, Any]:
         """Get configuration parameters for given precision level."""
 
     def __repr__(self) -> str:
@@ -241,7 +242,12 @@ class MultiCriteriaDetector(PlateauDetector):
         mean_second = np.mean(log_errors[half:])
         net_improvement = mean_first - mean_second
 
-        if variance < config.variance_threshold and net_improvement < 0.1 or variance > config.variance_threshold * 5 and net_improvement < 0.05:
+        if (
+            variance < config.variance_threshold
+            and net_improvement < 0.1
+            or variance > config.variance_threshold * 5
+            and net_improvement < 0.05
+        ):
             score += self.criteria_weights["variance"]
 
         # Criterion 3: Acceleration
@@ -250,12 +256,16 @@ class MultiCriteriaDetector(PlateauDetector):
             accelerations = np.diff(slopes)
             mean_accel = np.abs(np.mean(accelerations[-5:]))
 
-            if mean_accel < config.acceleration_threshold or mean_accel > config.acceleration_threshold * 100 and rel_improvement < 0.01:
+            if (
+                mean_accel < config.acceleration_threshold
+                or mean_accel > config.acceleration_threshold * 100
+                and rel_improvement < 0.01
+            ):
                 score += self.criteria_weights["acceleration"]
 
         return score
 
-    def get_config(self, precision: str) -> dict:
+    def get_config(self, precision: str) -> dict[str, Any]:
         """Get configuration for precision level."""
         config = self._configs.get(precision.lower())
         if config:
@@ -324,7 +334,7 @@ class RelativeImprovementDetector(PlateauDetector):
 
         return PlateauResult(detected=plateau, score=rel_improvement)
 
-    def get_config(self, precision: str) -> dict:
+    def get_config(self, precision: str) -> dict[str, Any]:
         """Get configuration for precision level."""
         return {
             "threshold": self._thresholds.get(precision.lower(), 0.0),
@@ -374,7 +384,7 @@ class ThresholdDetector(PlateauDetector):
 
         return PlateauResult(detected=plateau, score=current_error)
 
-    def get_config(self, precision: str) -> dict:
+    def get_config(self, precision: str) -> dict[str, Any]:
         """Get configuration for precision level."""
         return {
             "threshold": self._thresholds.get(precision.lower(), 0.0),
@@ -385,7 +395,9 @@ class ThresholdDetector(PlateauDetector):
         return "ThresholdDetector()"
 
 
-def create_detector(detector_type: str = "multi_criteria", **kwargs) -> PlateauDetector:
+def create_detector(
+    detector_type: str = "multi_criteria", **kwargs: Any
+) -> PlateauDetector:
     """Factory function to create plateau detectors.
 
     Args:

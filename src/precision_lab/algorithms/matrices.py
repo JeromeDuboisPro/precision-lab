@@ -15,7 +15,7 @@ References:
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, cast
 
 import numpy as np
 
@@ -55,7 +55,7 @@ class MatrixFingerprint:
     convergence_type: str
     """Matrix type: 'slow', 'linear', or 'geometric'."""
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for JSON serialization."""
         return {
             "eigenvalue_signature": list(self.eigenvalue_signature),
@@ -108,7 +108,7 @@ def create_linear_spectrum_matrix(
     Q, _ = np.linalg.qr(rng.standard_normal((n, n)))
 
     # Construct A = Q @ diag(λ) @ Q^T
-    return Q @ np.diag(eigenvalues) @ Q.T
+    return cast("NDArray[np.float64]", Q @ np.diag(eigenvalues) @ Q.T)
 
 
 def create_slow_convergence_matrix(
@@ -158,7 +158,7 @@ def create_slow_convergence_matrix(
 
     Q, _ = np.linalg.qr(rng.standard_normal((n, n)))
 
-    return Q @ np.diag(eigenvalues) @ Q.T
+    return cast("NDArray[np.float64]", Q @ np.diag(eigenvalues) @ Q.T)
 
 
 def create_geometric_spectrum_matrix(
@@ -190,7 +190,7 @@ def create_geometric_spectrum_matrix(
     eigenvalues = np.geomspace(1.0, condition_number, n)
     Q, _ = np.linalg.qr(rng.standard_normal((n, n)))
 
-    return Q @ np.diag(eigenvalues) @ Q.T
+    return cast("NDArray[np.float64]", Q @ np.diag(eigenvalues) @ Q.T)
 
 
 def compute_fingerprint(
@@ -340,12 +340,12 @@ def create_legacy_experiment(
     enabling comparison with historical results and validation.
 
     Historical Context:
-        precision-lens used a mixed RNG approach for experiment setup:
-        - Matrix generation: PCG64 (np.random.default_rng)
-        - Initial vector: MT19937 (np.random.seed) with skip pattern
+        precision-lens used legacy NumPy RNG (np.random.seed + np.random.randn)
+        for both matrix generation AND initial vector generation:
+        - Matrix: np.random.seed(seed) → np.random.randn(n, n) for Q
+        - Initial vector: np.random.seed(seed) → skip n×n → np.random.randn(n)
 
-        The skip pattern consumed n×n random calls before generating the
-        initial vector, matching the number of calls used for matrix generation.
+        This uses MT19937 with Box-Muller transform throughout.
 
     Args:
         n: Matrix dimension.
@@ -360,12 +360,11 @@ def create_legacy_experiment(
     Example:
         >>> # Reproduce precision-lens post 3 traces
         >>> legacy = create_legacy_experiment(10, condition_number=100.0)
-        >>> modern = create_experiment(10, condition_number=100.0)
-        >>> # legacy.matrix == modern.matrix (same PCG64 seed)
-        >>> # legacy.initial_vector != modern.initial_vector (different RNG path)
+        >>> # Use with power method to get identical traces as precision-lens
     """
-    # Matrix: PCG64 (same as standalone functions and create_experiment)
-    rng = np.random.default_rng(seed)
+    # Matrix generation using legacy RNG (MT19937 via np.random.seed)
+    # This matches precision-lens create_slow_convergence_matrix exactly
+    np.random.seed(seed)  # noqa: NPY002 - intentional legacy RNG for compatibility
 
     # Build eigenvalue spectrum based on convergence type
     if convergence_type == "slow":
@@ -383,14 +382,14 @@ def create_legacy_experiment(
         msg = f"Unknown convergence_type: {convergence_type}"
         raise ValueError(msg)
 
-    # Random orthogonal matrix via QR decomposition (PCG64)
-    Q, _ = np.linalg.qr(rng.standard_normal((n, n)))
+    # Random orthogonal matrix via QR decomposition (legacy MT19937)
+    Q, _ = np.linalg.qr(np.random.randn(n, n))  # noqa: NPY002 - legacy RNG
     matrix = Q @ np.diag(eigenvalues) @ Q.T
 
-    # Initial vector: MT19937 with legacy skip pattern
-    # This matches precision-lens post 3 behavior exactly
-    np.random.seed(seed)  # noqa: NPY002 - intentional legacy RNG for compatibility
-    _ = np.random.randn(n * n)  # noqa: NPY002 - skip matrix generation calls
+    # Initial vector: reset seed, skip matrix calls, then generate
+    # This matches precision-lens create_experiment_matrix exactly
+    np.random.seed(seed)  # noqa: NPY002 - reset seed
+    _ = np.random.randn(n, n)  # noqa: NPY002 - skip matrix Q generation
     initial_vector = np.random.randn(n)  # noqa: NPY002 - legacy RNG
     initial_vector = initial_vector / np.linalg.norm(initial_vector)
 

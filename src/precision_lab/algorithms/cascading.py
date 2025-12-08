@@ -23,7 +23,7 @@ from __future__ import annotations
 import time
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
@@ -164,7 +164,7 @@ class CascadeTrace:
     segments: tuple[SegmentResult, ...]
     """Per-precision segment results."""
 
-    history: tuple[dict, ...]
+    history: tuple[dict[str, Any], ...]
     """Per-iteration metrics (tuple for immutability)."""
 
 
@@ -222,7 +222,7 @@ class CascadingPowerMethod:
         return self._experiment.true_eigenvalue
 
     @property
-    def matrix_fingerprint(self) -> dict:
+    def matrix_fingerprint(self) -> dict[str, Any]:
         """Matrix fingerprint for reproducibility verification."""
         return self._experiment.fingerprint.to_dict()
 
@@ -251,10 +251,10 @@ class CascadingPowerMethod:
             max_effective_iterations = 5 * max(n, 1000)
 
         # Use reproducible initial vector
-        x = self._experiment.initial_vector.copy()
+        x: NDArray[np.floating] = self._experiment.initial_vector.copy()
 
         # Tracking
-        full_history: list[dict] = []
+        full_history: list[dict[str, Any]] = []
         segments: list[SegmentResult] = []
 
         total_iterations = 0
@@ -371,7 +371,7 @@ class CascadingPowerMethod:
         iteration_offset: int,
         cumulative_algorithm_time: float,
         cumulative_wall_time: float,
-    ) -> tuple[list[dict], NDArray[np.floating], bool, float | None]:
+    ) -> tuple[list[dict[str, Any]], NDArray[np.floating], bool, float | None]:
         """Run power method at a single precision level.
 
         Args:
@@ -389,7 +389,7 @@ class CascadingPowerMethod:
         precision_name = precision_config.name
         precision_format = precision_config.format
 
-        history: list[dict] = []
+        history: list[dict[str, Any]] = []
         converged = False
         residual_history: list[float] = []
         plateau_score: float | None = None
@@ -460,7 +460,7 @@ class CascadingPowerMethod:
         final_x = engine.current_vector.copy()
         return history, final_x, converged, plateau_score
 
-    def to_dict(self, trace: CascadeTrace) -> dict:
+    def to_dict(self, trace: CascadeTrace) -> dict[str, Any]:
         """Convert trace to dictionary for JSON serialization.
 
         Args:

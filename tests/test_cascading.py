@@ -240,8 +240,12 @@ class TestCascadingPowerMethod:
 
     def test_reproducibility(self) -> None:
         """Same parameters should produce identical results."""
-        cascading1 = CascadingPowerMethod(matrix_size=100, condition_number=100, seed=42)
-        cascading2 = CascadingPowerMethod(matrix_size=100, condition_number=100, seed=42)
+        cascading1 = CascadingPowerMethod(
+            matrix_size=100, condition_number=100, seed=42
+        )
+        cascading2 = CascadingPowerMethod(
+            matrix_size=100, condition_number=100, seed=42
+        )
 
         trace1 = cascading1.run(target_residual=1e-3, max_effective_iterations=100)
         trace2 = cascading2.run(target_residual=1e-3, max_effective_iterations=100)

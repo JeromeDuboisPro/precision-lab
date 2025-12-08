@@ -140,7 +140,7 @@ def run(
     ] = 1000,
 ) -> None:
     """Run power method experiment (placeholder)."""
-    console.print(f"[bold]Power Method Experiment[/]")
+    console.print("[bold]Power Method Experiment[/]")
     console.print(f"  Matrix size: {matrix_size}×{matrix_size}")
     console.print(f"  Precision: {precision.upper()}")
     console.print(f"  Max iterations: {max_iterations}")

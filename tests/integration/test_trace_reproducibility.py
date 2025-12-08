@@ -43,7 +43,7 @@ def load_golden(filename: str) -> dict | list:
     filepath = GOLDEN_DIR / filename
     if not filepath.exists():
         pytest.skip(f"Golden file not found: {filepath}. Run generate_golden.py first.")
-    with open(filepath) as f:
+    with filepath.open() as f:
         return json.load(f)
 
 
@@ -77,13 +77,15 @@ class TestSinglePrecisionReproducibility:
                 experiment.true_eigenvalue,
             )
 
-            trace.append({
-                "iteration": iteration,
-                "eigenvalue": float(iter_result.eigenvalue),
-                "relative_error": float(conv_result.relative_error),
-                "residual_norm": float(conv_result.residual_norm),
-                "vector_norm": float(engine.vector_norm),
-            })
+            trace.append(
+                {
+                    "iteration": iteration,
+                    "eigenvalue": float(iter_result.eigenvalue),
+                    "relative_error": float(conv_result.relative_error),
+                    "residual_norm": float(conv_result.residual_norm),
+                    "vector_norm": float(engine.vector_norm),
+                }
+            )
 
         return trace
 
@@ -97,23 +99,29 @@ class TestSinglePrecisionReproducibility:
             f"Trace length mismatch: {len(actual)} vs {len(expected)}"
         )
 
-        for i, (act, exp) in enumerate(zip(actual, expected)):
+        for i, (act, exp) in enumerate(zip(actual, expected, strict=True)):
             assert act["iteration"] == exp["iteration"], f"Iteration mismatch at {i}"
 
             # Compare eigenvalue
-            assert np.isclose(act["eigenvalue"], exp["eigenvalue"], rtol=tol["eigenvalue"]), (
+            assert np.isclose(
+                act["eigenvalue"], exp["eigenvalue"], rtol=tol["eigenvalue"]
+            ), (
                 f"Eigenvalue mismatch at iteration {i}: "
                 f"{act['eigenvalue']} vs {exp['eigenvalue']}"
             )
 
             # Compare residual norm
-            assert np.isclose(act["residual_norm"], exp["residual_norm"], rtol=tol["residual"]), (
+            assert np.isclose(
+                act["residual_norm"], exp["residual_norm"], rtol=tol["residual"]
+            ), (
                 f"Residual mismatch at iteration {i}: "
                 f"{act['residual_norm']} vs {exp['residual_norm']}"
             )
 
             # Compare relative error
-            assert np.isclose(act["relative_error"], exp["relative_error"], rtol=tol["error"]), (
+            assert np.isclose(
+                act["relative_error"], exp["relative_error"], rtol=tol["error"]
+            ), (
                 f"Error mismatch at iteration {i}: "
                 f"{act['relative_error']} vs {exp['relative_error']}"
             )
@@ -216,7 +224,9 @@ class TestCascadeReproducibility:
         )
 
         # Check each segment
-        for i, (actual, exp) in enumerate(zip(trace.segments, expected["segments"])):
+        for i, (actual, exp) in enumerate(
+            zip(trace.segments, expected["segments"], strict=True)
+        ):
             assert actual.precision == exp["precision"], (
                 f"Segment {i} precision mismatch: {actual.precision} vs {exp['precision']}"
             )
@@ -256,19 +266,25 @@ class TestCascadeReproducibility:
             f"History length mismatch: {len(actual_history)} vs {len(expected_history)}"
         )
 
-        for i, (act, exp) in enumerate(zip(actual_history, expected_history)):
+        for i, (act, exp) in enumerate(
+            zip(actual_history, expected_history, strict=True)
+        ):
             assert act["iteration"] == exp["iteration"], f"Iteration mismatch at {i}"
             assert act["precision"] == exp["precision"], (
                 f"Precision mismatch at iteration {i}: "
                 f"{act['precision']} vs {exp['precision']}"
             )
 
-            assert np.isclose(act["eigenvalue"], exp["eigenvalue"], rtol=tol["eigenvalue"]), (
+            assert np.isclose(
+                act["eigenvalue"], exp["eigenvalue"], rtol=tol["eigenvalue"]
+            ), (
                 f"Eigenvalue mismatch at iteration {i}: "
                 f"{act['eigenvalue']} vs {exp['eigenvalue']}"
             )
 
-            assert np.isclose(act["residual_norm"], exp["residual_norm"], rtol=tol["residual"]), (
+            assert np.isclose(
+                act["residual_norm"], exp["residual_norm"], rtol=tol["residual"]
+            ), (
                 f"Residual mismatch at iteration {i}: "
                 f"{act['residual_norm']} vs {exp['residual_norm']}"
             )

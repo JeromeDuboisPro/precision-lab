@@ -12,7 +12,7 @@ References:
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any
+from typing import Any, cast
 
 import numpy as np
 from numpy.typing import DTypeLike
@@ -201,7 +201,7 @@ def get_dtype(fmt: PrecisionFormat | str) -> DTypeLike:
     }
 
     if fmt in dtype_map:
-        return dtype_map[fmt]
+        return cast("DTypeLike", dtype_map[fmt])
 
     # FP8 formats require ml_dtypes
     if not HAS_FP8:
@@ -214,7 +214,7 @@ def get_dtype(fmt: PrecisionFormat | str) -> DTypeLike:
         PrecisionFormat.FP8_E4M3: ml_dtypes.float8_e4m3fn,
         PrecisionFormat.FP8_E5M2: ml_dtypes.float8_e5m2,
     }
-    return fp8_map[fmt]
+    return cast("DTypeLike", fp8_map[fmt])
 
 
 def get_eps(fmt: PrecisionFormat | str) -> float:

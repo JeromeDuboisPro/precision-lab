@@ -46,13 +46,15 @@ def generate_single_precision_trace(precision: str) -> list[dict]:
             experiment.true_eigenvalue,
         )
 
-        trace.append({
-            "iteration": iteration,
-            "eigenvalue": float(iter_result.eigenvalue),
-            "relative_error": float(conv_result.relative_error),
-            "residual_norm": float(conv_result.residual_norm),
-            "vector_norm": float(engine.vector_norm),
-        })
+        trace.append(
+            {
+                "iteration": iteration,
+                "eigenvalue": float(iter_result.eigenvalue),
+                "relative_error": float(conv_result.relative_error),
+                "residual_norm": float(conv_result.residual_norm),
+                "vector_norm": float(engine.vector_norm),
+            }
+        )
 
     return trace
 
@@ -113,7 +115,7 @@ def generate_cascade_trace() -> dict:
 def save_golden(data: dict | list, filename: str) -> None:
     """Save golden data to JSON file."""
     filepath = GOLDEN_DIR / filename
-    with open(filepath, "w") as f:
+    with filepath.open("w") as f:
         json.dump(data, f, indent=2)
     print(f"✓ Generated {filepath}")
 

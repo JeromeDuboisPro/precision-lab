@@ -44,7 +44,9 @@ class TestGetSpec:
             ("fp16", 16),
         ],
     )
-    def test_get_spec_bits(self, fmt: PrecisionFormat | str, expected_bits: int) -> None:
+    def test_get_spec_bits(
+        self, fmt: PrecisionFormat | str, expected_bits: int
+    ) -> None:
         """Verify bit counts for each format."""
         spec = get_spec(fmt)
         assert spec.bits == expected_bits

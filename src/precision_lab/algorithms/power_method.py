@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import time
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
@@ -147,7 +147,7 @@ class PowerIteration:
                 self._vectors[:, 0] /= norm
         else:
             rng = np.random.default_rng()
-            vec = rng.standard_normal(self._n)
+            vec = np.asarray(rng.standard_normal(size=self._n))
             self._vectors[:, 0] = vec.astype(self._dtype)
             norm = np.linalg.norm(self._vectors[:, 0])
             self._vectors[:, 0] /= norm
@@ -248,7 +248,7 @@ class PowerIteration:
         if A_norm < 1e-14 or x_norm < 1e-14:
             normalized_residual = float("inf")
         else:
-            normalized_residual = residual_norm / (A_norm * x_norm)
+            normalized_residual = float(residual_norm / (A_norm * x_norm))
 
         # Relative error
         relative_error = abs(eigenvalue - true_eigenvalue) / abs(true_eigenvalue)
@@ -322,7 +322,7 @@ class PowerMethodTrace:
     total_time: float
     """Total execution time (seconds)."""
 
-    history: list[dict]
+    history: list[dict[str, Any]]
     """Per-iteration metrics."""
 
 
@@ -352,7 +352,7 @@ def run_power_method(
     """
     engine = PowerIteration(A, precision, initial_vector=initial_vector)
 
-    history: list[dict] = []
+    history: list[dict[str, Any]] = []
     start_time = time.perf_counter()
     cumulative_algo_time = 0.0
 
