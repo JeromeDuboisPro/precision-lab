@@ -179,9 +179,12 @@ Allocate more iterations to faster precisions:
 
 ### Session Start
 ```bash
+bd list               # ALWAYS check open beads first!
 bd ready              # See actionable tasks
 bd show <bead-id>     # Check details
 ```
+
+> **⚠️ IMPORTANT**: Always run `bd list` at session start to check open beads before starting work.
 
 ### During Work
 - Validate mathematical correctness
