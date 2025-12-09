@@ -7,7 +7,7 @@
 
 **30-Second Pitch:** Modern GPU accelerators offer up to 6× speedup at FP8 vs FP64, but can you still solve numerical problems accurately? This project demonstrates how reduced floating-point precision (FP8/FP16/FP32/FP64) affects convergence of iterative algorithms, and introduces a novel "cascading precision" strategy that achieves FP64-quality results while spending most iterations in faster, lower-precision formats.
 
-**[Live Demo →](https://jeromedubois.github.io/precision-lab)** *(Interactive visualizations showing precision race and cascading precision algorithm)*
+**[Live Demo →](https://jeromeduboispro.github.io/precision-lab/)** *(Interactive visualizations showing precision race and cascading precision algorithm)*
 
 ---
 
