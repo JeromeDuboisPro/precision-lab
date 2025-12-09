@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cascading Precision - Precision Lab</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <a href="index.html" class="back-link">← Back to Home</a>
+            <h1>Cascading Precision Visualization</h1>
+        </div>
+    </header>
+
+    <main>
+        <section class="viz-header">
+            <div class="container">
+                <p class="viz-description">
+                    Watch the novel cascading precision strategy in action. Starting at FP8 for maximum throughput,
+                    the algorithm automatically escalates to FP16, then FP32, and finally FP64 as it approaches
+                    each precision's natural convergence floor. This achieves 2-3× speedup over FP64-only.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <div class="container">
+                <div class="viz-container">
+                    <div class="viz-controls">
+                        <button id="playBtn" class="control-button">Play</button>
+                        <button id="pauseBtn" class="control-button" disabled>Pause</button>
+                        <button id="resetBtn" class="control-button">Reset</button>
+                        <label style="color: var(--text-secondary); margin-left: 1rem;">
+                            Speed:
+                            <select id="speedSelect" style="margin-left: 0.5rem; padding: 0.25rem;">
+                                <option value="1">1x</option>
+                                <option value="5" selected>5x</option>
+                                <option value="10">10x</option>
+                                <option value="20">20x</option>
+                            </select>
+                        </label>
+                    </div>
+
+                    <canvas id="chart-canvas"></canvas>
+
+                    <div class="cascade-indicator">
+                        <div class="current-precision" id="current-precision">FP8 (E4M3)</div>
+                        <div class="transition-info" id="transition-info">Starting with lowest precision for maximum throughput</div>
+                    </div>
+
+                    <div class="legend">
+                        <div class="legend-item">
+                            <div class="legend-color fp8"></div>
+                            <span>FP8 Segment</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color fp16"></div>
+                            <span>FP16 Segment</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color fp32"></div>
+                            <span>FP32 Segment</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color fp64"></div>
+                            <span>FP64 Segment</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="metrics">
+                    <div class="metric-card fp8">
+                        <div class="metric-label">FP8 Iterations Used</div>
+                        <div class="metric-value" id="fp8-iters">0</div>
+                    </div>
+                    <div class="metric-card fp16">
+                        <div class="metric-label">FP16 Iterations Used</div>
+                        <div class="metric-value" id="fp16-iters">0</div>
+                    </div>
+                    <div class="metric-card fp32">
+                        <div class="metric-label">FP32 Iterations Used</div>
+                        <div class="metric-value" id="fp32-iters">0</div>
+                    </div>
+                    <div class="metric-card fp64">
+                        <div class="metric-label">FP64 Iterations Used</div>
+                        <div class="metric-value" id="fp64-iters">0</div>
+                    </div>
+                </div>
+
+                <div class="viz-container" style="margin-top: 2rem;">
+                    <h3>Cascading Strategy</h3>
+                    <ul style="color: var(--text-secondary); line-height: 1.8;">
+                        <li><strong>Start at FP8:</strong> Exploit 6× throughput advantage to make rapid early progress (25% → 5% error)</li>
+                        <li><strong>Escalate to FP16:</strong> When FP8 stagnates (~10⁻² residual), switch to FP16 for continued progress</li>
+                        <li><strong>Escalate to FP32:</strong> When FP16 stagnates (~10⁻³ residual), switch to FP32 for higher accuracy</li>
+                        <li><strong>Finish with FP64:</strong> Final refinement to full machine precision if needed</li>
+                        <li><strong>State Transfer:</strong> Eigenvector state carries across transitions, preserving all progress</li>
+                        <li><strong>Performance Gain:</strong> 2-3× faster than FP64-only for same final accuracy</li>
+                    </ul>
+                </div>
+
+                <div class="viz-container" style="margin-top: 2rem;">
+                    <h3>Transition Points</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                        The algorithm detects stagnation when the residual norm stops improving or
+                        approaches the machine epsilon of the current precision. These transition points
+                        are shown as vertical lines in the visualization.
+                    </p>
+                    <div id="transition-details" style="color: var(--text-secondary); font-family: var(--font-mono); font-size: 0.9rem;"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>Precision Lab - Educational Research Project</p>
+        </div>
+    </footer>
+
+    <script src="js/visualizations.js"></script>
+    <script>
+        // Load cascade trace data and initialize visualization
+        async function initCascading() {
+            try {
+                const cascadeData = await fetch('data/cascade_trace.json').then(r => r.json());
+
+                const cascadeViz = new CascadingPrecisionVisualization('chart-canvas', cascadeData);
+
+                // Wire up controls
+                document.getElementById('playBtn').addEventListener('click', () => {
+                    cascadeViz.play();
+                    document.getElementById('playBtn').disabled = true;
+                    document.getElementById('pauseBtn').disabled = false;
+                });
+
+                document.getElementById('pauseBtn').addEventListener('click', () => {
+                    cascadeViz.pause();
+                    document.getElementById('playBtn').disabled = false;
+                    document.getElementById('pauseBtn').disabled = true;
+                });
+
+                document.getElementById('resetBtn').addEventListener('click', () => {
+                    cascadeViz.reset();
+                    document.getElementById('playBtn').disabled = false;
+                    document.getElementById('pauseBtn').disabled = true;
+                });
+
+                document.getElementById('speedSelect').addEventListener('change', (e) => {
+                    cascadeViz.setSpeed(parseFloat(e.target.value));
+                });
+
+                // Display transition details
+                const transitions = cascadeData.segments;
+                const detailsHtml = transitions.map((seg, i) => {
+                    const nextSeg = transitions[i + 1];
+                    if (nextSeg) {
+                        return `<div style="margin-bottom: 0.5rem;">
+                            ${seg.precision} → ${nextSeg.precision}: Iteration ${seg.end_iteration}
+                            (Residual: ${seg.end_residual.toExponential(2)})
+                        </div>`;
+                    }
+                    return '';
+                }).join('');
+                document.getElementById('transition-details').innerHTML = detailsHtml;
+
+            } catch (error) {
+                console.error('Failed to load cascade trace data:', error);
+                document.getElementById('chart-canvas').innerHTML =
+                    '<div style="color: var(--text-secondary); text-align: center; padding: 2rem;">Error loading trace data. Please check console for details.</div>';
+            }
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', initCascading);
+    </script>
+</body>
+</html>

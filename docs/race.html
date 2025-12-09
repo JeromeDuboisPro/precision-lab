@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Precision Race - Precision Lab</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <a href="index.html" class="back-link">← Back to Home</a>
+            <h1>Precision Race Visualization</h1>
+        </div>
+    </header>
+
+    <main>
+        <section class="viz-header">
+            <div class="container">
+                <p class="viz-description">
+                    Watch FP8, FP16, FP32, and FP64 compete to converge to the true eigenvalue.
+                    Each precision format shows different convergence characteristics, with lower
+                    precisions hitting their natural floor earlier due to machine epsilon limits.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <div class="container">
+                <div class="viz-container">
+                    <div class="viz-controls">
+                        <button id="playBtn" class="control-button">Play</button>
+                        <button id="pauseBtn" class="control-button" disabled>Pause</button>
+                        <button id="resetBtn" class="control-button">Reset</button>
+                        <label style="color: var(--text-secondary); margin-left: 1rem;">
+                            Speed:
+                            <select id="speedSelect" style="margin-left: 0.5rem; padding: 0.25rem;">
+                                <option value="1">1x</option>
+                                <option value="2" selected>2x</option>
+                                <option value="5">5x</option>
+                                <option value="10">10x</option>
+                            </select>
+                        </label>
+                    </div>
+
+                    <canvas id="chart-canvas"></canvas>
+
+                    <div class="legend">
+                        <div class="legend-item">
+                            <div class="legend-color fp8"></div>
+                            <span>FP8 (E4M3)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color fp16"></div>
+                            <span>FP16</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color fp32"></div>
+                            <span>FP32</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color fp64"></div>
+                            <span>FP64</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="metrics">
+                    <div class="metric-card fp8">
+                        <div class="metric-label">FP8 Iterations</div>
+                        <div class="metric-value" id="fp8-iters">0</div>
+                    </div>
+                    <div class="metric-card fp16">
+                        <div class="metric-label">FP16 Iterations</div>
+                        <div class="metric-value" id="fp16-iters">0</div>
+                    </div>
+                    <div class="metric-card fp32">
+                        <div class="metric-label">FP32 Iterations</div>
+                        <div class="metric-value" id="fp32-iters">0</div>
+                    </div>
+                    <div class="metric-card fp64">
+                        <div class="metric-label">FP64 Iterations</div>
+                        <div class="metric-value" id="fp64-iters">0</div>
+                    </div>
+                </div>
+
+                <div class="viz-container" style="margin-top: 2rem;">
+                    <h3>Key Observations</h3>
+                    <ul style="color: var(--text-secondary); line-height: 1.8;">
+                        <li><strong style="color: var(--fp8-color);">FP8</strong> makes rapid initial progress but stagnates around 10⁻² residual due to ε ≈ 0.125</li>
+                        <li><strong style="color: var(--fp16-color);">FP16</strong> achieves ~10⁻³ residual before hitting its precision floor (ε ≈ 10⁻³)</li>
+                        <li><strong style="color: var(--fp32-color);">FP32</strong> converges smoothly to ~10⁻⁷ residual, sufficient for most engineering applications</li>
+                        <li><strong style="color: var(--fp64-color);">FP64</strong> achieves full machine precision convergence beyond 10⁻¹⁵ residual</li>
+                        <li>All formats follow the same initial trajectory but diverge when approaching their respective precision limits</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>Precision Lab - Educational Research Project</p>
+        </div>
+    </footer>
+
+    <script src="js/visualizations.js"></script>
+    <script>
+        // Load trace data and initialize race visualization
+        async function initRace() {
+            try {
+                const [fp8Data, fp16Data, fp32Data, fp64Data] = await Promise.all([
+                    fetch('data/fp8_e4m3_trace.json').then(r => r.json()),
+                    fetch('data/fp16_trace.json').then(r => r.json()),
+                    fetch('data/fp32_trace.json').then(r => r.json()),
+                    fetch('data/fp64_trace.json').then(r => r.json())
+                ]);
+
+                const raceViz = new PrecisionRaceVisualization('chart-canvas', {
+                    fp8: fp8Data,
+                    fp16: fp16Data,
+                    fp32: fp32Data,
+                    fp64: fp64Data
+                });
+
+                // Wire up controls
+                document.getElementById('playBtn').addEventListener('click', () => {
+                    raceViz.play();
+                    document.getElementById('playBtn').disabled = true;
+                    document.getElementById('pauseBtn').disabled = false;
+                });
+
+                document.getElementById('pauseBtn').addEventListener('click', () => {
+                    raceViz.pause();
+                    document.getElementById('playBtn').disabled = false;
+                    document.getElementById('pauseBtn').disabled = true;
+                });
+
+                document.getElementById('resetBtn').addEventListener('click', () => {
+                    raceViz.reset();
+                    document.getElementById('playBtn').disabled = false;
+                    document.getElementById('pauseBtn').disabled = true;
+                });
+
+                document.getElementById('speedSelect').addEventListener('change', (e) => {
+                    raceViz.setSpeed(parseFloat(e.target.value));
+                });
+
+            } catch (error) {
+                console.error('Failed to load trace data:', error);
+                document.getElementById('chart-canvas').innerHTML =
+                    '<div style="color: var(--text-secondary); text-align: center; padding: 2rem;">Error loading trace data. Please check console for details.</div>';
+            }
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', initRace);
+    </script>
+</body>
+</html>

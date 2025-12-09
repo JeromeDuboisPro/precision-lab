@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Precision Lab - Exploring Precision-Performance Tradeoffs</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Precision Lab</h1>
+            <p class="tagline">Exploring precision-performance tradeoffs in numerical computing</p>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <h2>How does reduced floating-point precision affect algorithm convergence?</h2>
+                <p class="hero-description">
+                    Modern GPU accelerators support FP8, FP16, FP32, and FP64 arithmetic with vastly different
+                    throughput characteristics. But how do these precision levels affect convergence in numerical
+                    algorithms? This project explores that question through the lens of eigenvalue computation
+                    using the power method algorithm.
+                </p>
+            </div>
+        </section>
+
+        <section class="key-findings">
+            <div class="container">
+                <h2>Key Findings</h2>
+                <div class="findings-grid">
+                    <div class="finding-card">
+                        <div class="finding-icon">📊</div>
+                        <h3>Precision Floors Matter</h3>
+                        <p>
+                            Each precision level has a natural convergence floor determined by its machine epsilon.
+                            FP8 stagnates around 10⁻², FP16 around 10⁻³, FP32 around 10⁻⁷, and FP64 beyond 10⁻¹⁵.
+                        </p>
+                    </div>
+                    <div class="finding-card">
+                        <div class="finding-icon">⚡</div>
+                        <h3>Cascading Wins</h3>
+                        <p>
+                            Starting at FP8 and escalating to higher precisions (FP8→FP16→FP32→FP64) achieves
+                            2-3× speedup over FP64-only while reaching the same final accuracy.
+                        </p>
+                    </div>
+                    <div class="finding-card">
+                        <div class="finding-icon">🎯</div>
+                        <h3>Early Progress is Cheap</h3>
+                        <p>
+                            Lower precisions make rapid progress in early iterations. FP8 and FP16 quickly reduce
+                            error from 25% to 1%, setting up efficient refinement in higher precisions.
+                        </p>
+                    </div>
+                    <div class="finding-card">
+                        <div class="finding-icon">🔬</div>
+                        <h3>Residual Norm is Key</h3>
+                        <p>
+                            Using residual norm ||Av - λv|| as the convergence metric reveals the true precision
+                            limits of each format and enables accurate precision-switching decisions.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="methodology">
+            <div class="container">
+                <h2>Methodology</h2>
+                <div class="method-content">
+                    <div class="method-text">
+                        <h3>Power Method Algorithm</h3>
+                        <p>
+                            The power method is an iterative algorithm for computing the dominant eigenvalue of a matrix.
+                            Starting with a random vector, it repeatedly applies the matrix and normalizes, converging
+                            to the eigenvector corresponding to the largest eigenvalue.
+                        </p>
+                        <p>
+                            This algorithm is ideal for studying precision effects because:
+                        </p>
+                        <ul>
+                            <li>Convergence depends on condition number κ = λ₁/λ₂</li>
+                            <li>Each iteration compounds floating-point roundoff errors</li>
+                            <li>Precision limits manifest as convergence stagnation</li>
+                            <li>It's widely used in practice (PageRank, PCA, spectral clustering)</li>
+                        </ul>
+                    </div>
+                    <div class="method-specs">
+                        <h3>Experiment Parameters</h3>
+                        <table class="specs-table">
+                            <tr>
+                                <th>Matrix Size</th>
+                                <td>100×100</td>
+                            </tr>
+                            <tr>
+                                <th>Condition Number</th>
+                                <td>κ = 100</td>
+                            </tr>
+                            <tr>
+                                <th>True Eigenvalue</th>
+                                <td>λ ≈ 100</td>
+                            </tr>
+                            <tr>
+                                <th>Convergence Metric</th>
+                                <td>Residual Norm</td>
+                            </tr>
+                        </table>
+                        <h4>Precision Formats</h4>
+                        <table class="specs-table">
+                            <tr>
+                                <th>FP8</th>
+                                <td>ε ≈ 0.125</td>
+                            </tr>
+                            <tr>
+                                <th>FP16</th>
+                                <td>ε ≈ 9.77×10⁻⁴</td>
+                            </tr>
+                            <tr>
+                                <th>FP32</th>
+                                <td>ε ≈ 1.19×10⁻⁷</td>
+                            </tr>
+                            <tr>
+                                <th>FP64</th>
+                                <td>ε ≈ 2.22×10⁻¹⁶</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="visualizations">
+            <div class="container">
+                <h2>Interactive Visualizations</h2>
+                <div class="viz-grid">
+                    <a href="race.html" class="viz-card">
+                        <div class="viz-icon">🏁</div>
+                        <h3>Precision Race</h3>
+                        <p>
+                            Watch how FP8, FP16, FP32, and FP64 compete to reach convergence.
+                            See animated convergence curves showing when each precision hits its floor.
+                        </p>
+                        <span class="viz-link">Explore Race →</span>
+                    </a>
+                    <a href="cascading.html" class="viz-card">
+                        <div class="viz-icon">⚡</div>
+                        <h3>Cascading Precision</h3>
+                        <p>
+                            See the novel cascading strategy in action: FP8→FP16→FP32→FP64.
+                            Watch precision escalate automatically as convergence stagnates.
+                        </p>
+                        <span class="viz-link">Explore Cascading →</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section class="about">
+            <div class="container">
+                <h2>About This Project</h2>
+                <p>
+                    Precision Lab is an educational research project demonstrating precision-performance tradeoffs
+                    in numerical computing. The power method serves as a concrete example to explore how reduced
+                    floating-point precision affects algorithm convergence.
+                </p>
+                <p>
+                    This work is motivated by modern GPU architectures (like NVIDIA H100) that offer dramatically
+                    different throughput for different precisions. Understanding when and how to use lower precisions
+                    is critical for performance optimization in scientific computing and machine learning.
+                </p>
+                <div class="links">
+                    <a href="https://github.com" class="button">View on GitHub</a>
+                    <a href="#" class="button secondary">Read the Paper</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>Precision Lab - Educational Research Project</p>
+            <p>Exploring precision-performance frontiers in numerical computing</p>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,517 @@
+/* ============================================
+   Precision Lab - Shared Styles
+   ============================================ */
+
+:root {
+    /* Precision Colors */
+    --fp8-color: #ff6b35;
+    --fp16-color: #4a90e2;
+    --fp32-color: #50c878;
+    --fp64-color: #9b59b6;
+
+    /* UI Colors */
+    --bg-primary: #0a0e27;
+    --bg-secondary: #141b3d;
+    --bg-card: #1a2347;
+    --text-primary: #e8eaf6;
+    --text-secondary: #9fa8da;
+    --accent: #4fc3f7;
+    --border: #283593;
+
+    /* Typography */
+    --font-main: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    --font-mono: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', 'Droid Sans Mono', monospace;
+
+    /* Spacing */
+    --spacing-xs: 0.5rem;
+    --spacing-sm: 1rem;
+    --spacing-md: 2rem;
+    --spacing-lg: 4rem;
+    --spacing-xl: 6rem;
+
+    /* Border Radius */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+}
+
+/* ============================================
+   Reset & Base Styles
+   ============================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-main);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    line-height: 1.2;
+    margin-bottom: var(--spacing-sm);
+}
+
+h1 { font-size: 2.5rem; }
+h2 { font-size: 2rem; }
+h3 { font-size: 1.5rem; }
+
+p {
+    margin-bottom: var(--spacing-sm);
+}
+
+a {
+    color: var(--accent);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+a:hover {
+    color: var(--text-primary);
+}
+
+/* ============================================
+   Layout Components
+   ============================================ */
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-md);
+}
+
+header {
+    background: var(--bg-secondary);
+    border-bottom: 2px solid var(--border);
+    padding: var(--spacing-md) 0;
+}
+
+header h1 {
+    margin-bottom: 0.25rem;
+    color: var(--accent);
+}
+
+.tagline {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+}
+
+footer {
+    background: var(--bg-secondary);
+    border-top: 2px solid var(--border);
+    padding: var(--spacing-lg) 0;
+    margin-top: var(--spacing-xl);
+    text-align: center;
+    color: var(--text-secondary);
+}
+
+footer p {
+    margin-bottom: 0.5rem;
+}
+
+/* ============================================
+   Section Styles
+   ============================================ */
+
+section {
+    padding: var(--spacing-lg) 0;
+}
+
+.hero {
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+    text-align: center;
+    padding: var(--spacing-xl) 0;
+}
+
+.hero h2 {
+    font-size: 2.5rem;
+    margin-bottom: var(--spacing-md);
+    background: linear-gradient(135deg, var(--accent) 0%, var(--fp16-color) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hero-description {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    max-width: 800px;
+    margin: 0 auto;
+    line-height: 1.8;
+}
+
+/* ============================================
+   Cards & Grids
+   ============================================ */
+
+.findings-grid,
+.viz-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-md);
+}
+
+.finding-card,
+.viz-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md);
+    transition: transform 0.2s, border-color 0.2s;
+}
+
+.finding-card:hover,
+.viz-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent);
+}
+
+.finding-icon,
+.viz-icon {
+    font-size: 3rem;
+    margin-bottom: var(--spacing-sm);
+}
+
+.finding-card h3,
+.viz-card h3 {
+    color: var(--accent);
+    margin-bottom: var(--spacing-sm);
+}
+
+.viz-card {
+    display: block;
+    cursor: pointer;
+}
+
+.viz-link {
+    display: inline-block;
+    margin-top: var(--spacing-sm);
+    color: var(--accent);
+    font-weight: 600;
+}
+
+.viz-card:hover .viz-link {
+    transform: translateX(4px);
+}
+
+/* ============================================
+   Methodology Section
+   ============================================ */
+
+.methodology {
+    background: var(--bg-secondary);
+}
+
+.method-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-lg);
+    margin-top: var(--spacing-md);
+}
+
+.method-text ul {
+    list-style-position: inside;
+    color: var(--text-secondary);
+    margin-top: var(--spacing-sm);
+}
+
+.method-text li {
+    margin-bottom: 0.5rem;
+}
+
+.specs-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: var(--spacing-md);
+}
+
+.specs-table th,
+.specs-table td {
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+}
+
+.specs-table th {
+    color: var(--accent);
+    font-weight: 600;
+}
+
+.specs-table td {
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+}
+
+/* ============================================
+   About Section
+   ============================================ */
+
+.about {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.about p {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-md);
+}
+
+.links {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-md);
+}
+
+.button {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background: var(--accent);
+    color: var(--bg-primary);
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.button:hover {
+    background: var(--text-primary);
+    color: var(--bg-primary);
+}
+
+.button.secondary {
+    background: transparent;
+    border: 2px solid var(--accent);
+    color: var(--accent);
+}
+
+.button.secondary:hover {
+    background: var(--accent);
+    color: var(--bg-primary);
+}
+
+/* ============================================
+   Visualization Pages
+   ============================================ */
+
+.viz-header {
+    text-align: center;
+    padding: var(--spacing-md) 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.viz-header h1 {
+    margin-bottom: var(--spacing-sm);
+}
+
+.viz-description {
+    color: var(--text-secondary);
+    max-width: 700px;
+    margin: 0 auto var(--spacing-sm);
+}
+
+.back-link {
+    display: inline-block;
+    color: var(--accent);
+    margin-bottom: var(--spacing-sm);
+}
+
+.back-link:hover {
+    transform: translateX(-4px);
+}
+
+.viz-container {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md);
+    margin: var(--spacing-md) 0;
+}
+
+.viz-controls {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+    align-items: center;
+}
+
+.control-button {
+    padding: 0.5rem 1rem;
+    background: var(--accent);
+    color: var(--bg-primary);
+    border: none;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.control-button:hover {
+    background: var(--text-primary);
+}
+
+.control-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+#chart-canvas {
+    width: 100%;
+    height: 500px;
+    background: var(--bg-primary);
+    border-radius: var(--radius-md);
+}
+
+.metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-md);
+}
+
+.metric-card {
+    background: var(--bg-primary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-sm);
+}
+
+.metric-label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+}
+
+.metric-value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    font-family: var(--font-mono);
+}
+
+.metric-card.fp8 .metric-value { color: var(--fp8-color); }
+.metric-card.fp16 .metric-value { color: var(--fp16-color); }
+.metric-card.fp32 .metric-value { color: var(--fp32-color); }
+.metric-card.fp64 .metric-value { color: var(--fp64-color); }
+
+.legend {
+    display: flex;
+    gap: var(--spacing-md);
+    justify-content: center;
+    margin-top: var(--spacing-sm);
+    flex-wrap: wrap;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.legend-color {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+}
+
+.legend-color.fp8 { background: var(--fp8-color); }
+.legend-color.fp16 { background: var(--fp16-color); }
+.legend-color.fp32 { background: var(--fp32-color); }
+.legend-color.fp64 { background: var(--fp64-color); }
+
+.cascade-indicator {
+    background: var(--bg-primary);
+    border: 2px solid var(--accent);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-sm);
+    margin-top: var(--spacing-md);
+    text-align: center;
+}
+
+.current-precision {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.transition-info {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+/* ============================================
+   Responsive Design
+   ============================================ */
+
+@media (max-width: 768px) {
+    h1 { font-size: 2rem; }
+    h2 { font-size: 1.75rem; }
+    h3 { font-size: 1.25rem; }
+
+    .hero h2 {
+        font-size: 1.75rem;
+    }
+
+    .hero-description {
+        font-size: 1rem;
+    }
+
+    .method-content {
+        grid-template-columns: 1fr;
+    }
+
+    .findings-grid,
+    .viz-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .links {
+        flex-direction: column;
+    }
+
+    .button {
+        text-align: center;
+    }
+
+    #chart-canvas {
+        height: 400px;
+    }
+}
+
+/* ============================================
+   Animations
+   ============================================ */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.6s ease-out;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.pulse {
+    animation: pulse 2s ease-in-out infinite;
+}
