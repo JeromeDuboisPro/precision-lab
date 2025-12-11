@@ -25,9 +25,9 @@
     /* Spacing */
     --spacing-xs: 0.5rem;
     --spacing-sm: 1rem;
-    --spacing-md: 2rem;
-    --spacing-lg: 4rem;
-    --spacing-xl: 6rem;
+    --spacing-md: 1.5rem;
+    --spacing-lg: 2.5rem;
+    --spacing-xl: 3rem;
 
     /* Border Radius */
     --radius-sm: 4px;
@@ -130,6 +130,10 @@ section {
     padding: var(--spacing-xl) 0;
 }
 
+.hero.hero-compact {
+    padding: var(--spacing-lg) 0;
+}
+
 .hero h2 {
     font-size: 2.5rem;
     margin-bottom: var(--spacing-md);
@@ -176,8 +180,8 @@ section {
 
 .finding-icon,
 .viz-icon {
-    font-size: 3rem;
-    margin-bottom: var(--spacing-sm);
+    font-size: 2rem;
+    margin-bottom: var(--spacing-xs);
 }
 
 .finding-card h3,
