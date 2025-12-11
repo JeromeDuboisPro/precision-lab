@@ -23,7 +23,7 @@ try:
 
     HAS_FP8 = True
 except ImportError:
-    ml_dtypes = None  # type: ignore[assignment]
+    ml_dtypes = None  # type: ignore[assignment,unused-ignore]
     HAS_FP8 = False
 
 
@@ -59,7 +59,9 @@ class PrecisionSpec:
 # PRECISION SPECIFICATIONS
 # =============================================================================
 # Machine epsilon: 2^(-mantissa_bits)
-# H100 speedup factors based on tensor core capabilities
+# H100 speedup factors: Theoretical peak throughput ratios for demonstration.
+# Note: Real-world performance depends on memory bandwidth utilization.
+# Power method is memory-bound, so actual speedups may differ.
 
 _PRECISION_SPECS: dict[PrecisionFormat, PrecisionSpec] = {
     PrecisionFormat.FP64: PrecisionSpec(
@@ -320,3 +322,155 @@ def _parse_format(name: str) -> PrecisionFormat:
 
     valid = [f.value for f in PrecisionFormat]
     raise ValueError(f"Unknown precision format: '{name}'. Valid: {valid}")
+
+
+# =============================================================================
+# FP8 QUANTIZATION INFRASTRUCTURE
+# =============================================================================
+# GPU-ready quantization utilities for FP8 formats.
+# Designed for future integration with CUDA/cuDNN tensor core operations.
+
+
+@dataclass
+class QuantizationResult:
+    """Result of FP8 quantization operation.
+
+    Attributes:
+        quantized: Quantized tensor in target FP8 format.
+        scale: Scale factor used for quantization (tensor = quantized * scale).
+        format: FP8 format used (e4m3 or e5m2).
+        clipped_count: Number of values clipped to representable range.
+    """
+
+    quantized: "np.ndarray[Any, np.dtype[Any]]"
+    scale: float
+    format: str
+    clipped_count: int
+
+
+def compute_fp8_scale(
+    tensor: "np.ndarray[Any, np.dtype[np.floating[Any]]]",
+    format: str = "e4m3",
+) -> float:
+    """Compute optimal scale factor for FP8 quantization.
+
+    Uses the maximum absolute value to determine scale, ensuring
+    the tensor fits within the FP8 representable range.
+
+    Args:
+        tensor: Input tensor to quantize.
+        format: FP8 format ('e4m3' or 'e5m2').
+
+    Returns:
+        Scale factor such that tensor/scale fits in FP8 range.
+
+    Note:
+        FP8 E4M3 max value: 448 (no inf/nan representation)
+        FP8 E5M2 max value: 57344 (with inf/nan)
+    """
+    # FP8 format maximum representable values
+    max_values = {
+        "e4m3": 448.0,  # E4M3: no inf/nan, max exponent used for values
+        "e5m2": 57344.0,  # E5M2: includes inf/nan representation
+    }
+
+    if format not in max_values:
+        raise ValueError(
+            f"Unknown FP8 format: {format}. Valid: {list(max_values.keys())}"
+        )
+
+    abs_max = float(np.max(np.abs(tensor)))
+    if abs_max == 0:
+        return 1.0  # Avoid division by zero for zero tensors
+
+    # Scale to use ~90% of dynamic range (leave headroom for accumulation)
+    target_max = max_values[format] * 0.9
+    return abs_max / target_max
+
+
+def quantize_to_fp8(
+    tensor: "np.ndarray[Any, np.dtype[np.floating[Any]]]",
+    format: str = "e4m3",
+    scale: float | None = None,
+) -> QuantizationResult:
+    """Quantize tensor to FP8 format with proper scaling.
+
+    Implements production-ready FP8 quantization with:
+    - Automatic scale factor computation
+    - Clipping to representable range
+    - Support for both E4M3 and E5M2 formats
+
+    Args:
+        tensor: Input tensor (any floating-point type).
+        format: FP8 format ('e4m3' or 'e5m2').
+        scale: Optional pre-computed scale factor.
+
+    Returns:
+        QuantizationResult with quantized tensor, scale, and metadata.
+
+    Raises:
+        ImportError: If ml_dtypes is not installed.
+
+    Example:
+        >>> matrix = np.random.randn(256, 256).astype(np.float32)
+        >>> result = quantize_to_fp8(matrix, format='e4m3')
+        >>> print(f"Scale: {result.scale:.4f}, Clipped: {result.clipped_count}")
+    """
+    if not HAS_FP8:
+        raise ImportError(
+            "FP8 quantization requires ml_dtypes package. "
+            "Install with: pip install ml-dtypes"
+        )
+
+    # Compute scale if not provided
+    if scale is None:
+        scale = compute_fp8_scale(tensor, format)
+
+    # Scale down and quantize
+    scaled = tensor / scale
+
+    # Get FP8 dtype
+    if format == "e4m3":
+        fp8_dtype = ml_dtypes.float8_e4m3fn
+        max_val = 448.0
+    elif format == "e5m2":
+        fp8_dtype = ml_dtypes.float8_e5m2
+        max_val = 57344.0
+    else:
+        raise ValueError(f"Unknown FP8 format: {format}")
+
+    # Count values that will be clipped
+    clipped_count = int(np.sum(np.abs(scaled) > max_val))
+
+    # Clip and convert to FP8
+    clipped = np.clip(scaled, -max_val, max_val)
+    quantized = clipped.astype(fp8_dtype)
+
+    return QuantizationResult(
+        quantized=quantized,
+        scale=scale,
+        format=format,
+        clipped_count=clipped_count,
+    )
+
+
+def dequantize_from_fp8(
+    quantized: "np.ndarray[Any, np.dtype[Any]]",
+    scale: float,
+    target_dtype: DTypeLike = np.float32,
+) -> "np.ndarray[Any, np.dtype[np.floating[Any]]]":
+    """Dequantize FP8 tensor back to higher precision.
+
+    Args:
+        quantized: FP8 tensor to dequantize.
+        scale: Scale factor from quantization.
+        target_dtype: Target precision (default: float32).
+
+    Returns:
+        Dequantized tensor in target precision.
+
+    Example:
+        >>> result = quantize_to_fp8(matrix, format='e4m3')
+        >>> recovered = dequantize_from_fp8(result.quantized, result.scale)
+    """
+    return (quantized.astype(target_dtype) * scale).astype(target_dtype)
