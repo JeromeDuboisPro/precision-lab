@@ -5,7 +5,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Type Checked: mypy](https://img.shields.io/badge/type--checked-mypy-informational)](http://mypy-lang.org/)
 
-**30-Second Pitch:** Modern GPU accelerators offer up to 6× speedup at FP8 vs FP64, but can you still solve numerical problems accurately? This project demonstrates how reduced floating-point precision (FP8/FP16/FP32/FP64) affects convergence of iterative algorithms, and introduces a novel "cascading precision" strategy that achieves FP64-quality results while spending most iterations in faster, lower-precision formats.
+**30-Second Pitch:** Modern GPU accelerators offer significant throughput gains at reduced precisions (theoretical peak: up to 6× at FP8 vs FP64). But can you still solve numerical problems accurately? This project demonstrates how reduced floating-point precision (FP8/FP16/FP32/FP64) affects convergence of iterative algorithms, and introduces a novel "cascading precision" strategy that achieves FP64-quality results while spending most iterations in faster, lower-precision formats.
 
 **[Live Demo →](https://jeromeduboispro.github.io/precision-lab/)** *(Interactive visualizations showing precision race and cascading precision algorithm)*
 
@@ -15,13 +15,15 @@
 
 Precision-performance tradeoffs for power method eigenvalue computation on a 1024×1024 matrix (condition number κ=100):
 
-| Precision | Machine ε | Residual Floor | Iterations to 1e-6 | H100 Speedup | Time Advantage |
+| Precision | Machine ε | Residual Floor | Iterations to 1e-6 | Simulated Speedup* | Time Advantage |
 |-----------|-----------|----------------|-------------------|--------------|----------------|
 | **FP8** (E4M3) | ~0.125 | ~1e-3 | Plateaus early | 6× | Fast initial progress |
 | **FP16** | 9.77e-4 | ~1e-4 | Plateaus early | 4× | Good for moderate targets |
 | **FP32** | 1.19e-7 | ~1e-7 | ~450 | 2× | Standard engineering precision |
 | **FP64** | 2.22e-16 | ~1e-15 | ~450 | 1× (baseline) | Scientific reference |
 | **Cascading** | Adaptive | ~1e-15 | ~250 (effective) | 2.5-3× | **Best of both worlds** |
+
+*\*Speedup factors are theoretical peak throughput ratios based on tensor core specifications. Actual performance depends on memory bandwidth (power method is memory-bound).*
 
 **Cascading Strategy:** Start at FP8 (fastest throughput) → escalate to FP16 → FP32 → FP64 as needed. Achieves FP64 accuracy with 40-60% fewer effective iterations by spending early iterations in faster precisions.
 
@@ -98,11 +100,13 @@ Traditional approach: Run entire computation in single precision (either too slo
 
 **Why it works:** Iterative algorithms make rapid progress early (insensitive to precision), then slow down as they approach the solution (require higher precision). Cascading precision exploits this by matching precision to convergence phase.
 
-**Performance model:** Based on NVIDIA H100 tensor core specifications:
-- **FP8:** 6× iteration budget (tensor cores + memory bandwidth advantage)
-- **FP16:** 4× iteration budget (half-precision units)
+**Performance model (simulated):** Based on theoretical peak throughput ratios for tensor cores:
+- **FP8:** 6× iteration budget (theoretical tensor core peak)
+- **FP16:** 4× iteration budget (theoretical half-precision units)
 - **FP32:** 2× iteration budget (standard single precision)
 - **FP64:** 1× baseline (reference precision)
+
+*Note: These are theoretical maximum speedups. Real-world performance varies with memory bandwidth utilization, matrix size, and implementation efficiency.*
 
 ---
 
@@ -173,7 +177,7 @@ precision-lab/
 - IEEE 754 Standard: Floating-Point Arithmetic
 
 **GPU Architecture:**
-- NVIDIA H100 Tensor Core Specifications
+- Modern GPU tensor core architecture whitepapers
 - ML-accelerator precision formats (FP8 E4M3/E5M2)
 
 ---

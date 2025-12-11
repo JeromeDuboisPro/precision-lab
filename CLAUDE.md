@@ -43,13 +43,23 @@ Iterative algorithm for computing dominant eigenvalue λ₁ of matrix A:
 3. Eigenvalue estimate: λ = x_k^T·A·x_k
 4. Converge when residual norm < tolerance
 
-**Convergence Rate**: Depends on eigenvalue gap (λ₁/λ₂) and condition number κ(A)
+**Convergence Rate**: The power method converges linearly with rate ρ = |λ₂/λ₁|
+
+- **Convergence ratio**: ρ = |λ₂/λ₁| (second to first eigenvalue)
+- **Error reduction per iteration**: error_k ≈ ρᵏ · error_0
+- **Iterations to precision ε**: k ≈ log(ε) / log(ρ)
+- **Example**: ρ = 0.9 → ~44 iterations per decade of accuracy
+
+The `convergence_type` parameter controls ρ:
+- `"fast"` → ρ ≈ 0.5 (λ₂/λ₁ gap = 50%)
+- `"slow"` → ρ ≈ 0.909 (λ₂/λ₁ gap = 10%)
 
 ### ⚠️ IMPORTANT: Use Residual Norm, NOT Relative Error
 
-**Always use residual norm ||Av - λv|| as the convergence metric.**
+**Always use normalized residual ||Av - λv|| / (|λ| · ||v||) as the convergence metric.**
 
-- **Residual Norm**: ||Av - λv|| measures how well the eigenvector equation is satisfied
+- **Normalized Residual**: ||Av - λv|| / (|λ| · ||v||) measures convergence independent of scale
+- Uses |λ| as approximation for ||A||₂ (valid for SPD matrices where ||A||₂ = λ_max)
 - It's the mathematically proper convergence criterion for iterative eigensolvers
 - Shows correct precision floor behavior for each floating-point format
 
@@ -127,12 +137,18 @@ Dynamic precision escalation: **FP8 → FP16 → FP32 → FP64**
 
 ## 🎯 H100 Performance Modeling
 
-### Time Speedup (Simulation)
+### Time Speedup (Simulated)
+**Note**: These are *theoretical maximum* speedup factors for demonstration purposes.
+Actual performance varies based on memory bandwidth, matrix size, and implementation.
+
 Scale CPU time to simulate GPU performance:
-- **FP8**: 6× speedup (tensor cores + memory bandwidth)
-- **FP16**: 4× speedup (half-precision units)
+- **FP8**: 6× speedup (theoretical tensor core peak)
+- **FP16**: 4× speedup (theoretical half-precision units)
 - **FP32**: 1× (baseline)
 - **FP64**: 1× (reference)
+
+*Real-world power method is memory-bound, not compute-bound. Actual speedups
+may be lower depending on memory bandwidth utilization.*
 
 ### Iteration Budget (Fair Comparison)
 Allocate more iterations to faster precisions:
@@ -204,6 +220,40 @@ mypy src/
 bd close <completed-beads>
 git add -A && git commit
 ```
+
+---
+
+## 📊 Visualization Data Generation
+
+### Trace Generation Parameters
+When regenerating traces for the interactive visualizations:
+
+```python
+# Configuration for fair comparison
+matrix_size = 1024           # 1024×1024 matrix
+condition_number = 100.0     # κ=100 (moderately conditioned)
+seed = 42                    # Reproducibility
+convergence_type = "slow"    # 10% eigenvalue gap (λ₂/λ₁ = 0.909)
+```
+
+### Convergence Targets
+- **Cascading**: `target_residual=1e-12` → Forces use of all 4 precision levels (FP8→FP16→FP32→FP64)
+- **FP64 reference**: `target_error=1e-12` → Must match cascading's residual target for fair comparison
+
+### Expected Results (1024×1024, κ=100)
+| Method | Raw Iterations | Effective Iterations | Final Residual |
+|--------|---------------|---------------------|----------------|
+| Cascading | ~283 | ~165 | ~9.45e-13 |
+| FP64-only | ~259 | 259 | ~9.81e-13 |
+
+**Speedup**: Cascading achieves same accuracy in ~165 effective iterations vs FP64's 259 = **1.57× faster**
+
+### Effective Iteration Calculation
+X-axis shows "Effective FP64 Iterations" (normalized by speedup):
+- FP8 iterations ÷ 6
+- FP16 iterations ÷ 4
+- FP32 iterations ÷ 2
+- FP64 iterations ÷ 1 (baseline)
 
 ---
 
