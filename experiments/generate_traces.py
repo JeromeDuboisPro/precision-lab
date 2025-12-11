@@ -38,30 +38,41 @@ def generate_single_precision_traces(
 
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    print(f"Generating single precision traces (n={matrix_size}, κ={condition_number})...")
+    print(
+        f"Generating single precision traces (n={matrix_size}, κ={condition_number})..."
+    )
 
     # Create experiment setup once
     experiment = create_experiment(
         matrix_size, condition_number, seed=seed, convergence_type="slow"
     )
 
-    # Precision formats to test
-    precisions = [
-        PrecisionFormat.FP8_E4M3,
-        PrecisionFormat.FP16,
-        PrecisionFormat.FP32,
-        PrecisionFormat.FP64,
-    ]
+    # Iteration budgets per precision format
+    # Lower precision formats get more iterations to show their behavior at the precision floor
+    # FP64 is the reference (500), others are scaled based on throughput advantage
+    iteration_budgets = {
+        PrecisionFormat.FP8_E4M3: 3000,  # 6x throughput → 6x iterations
+        PrecisionFormat.FP16: 2000,  # 4x throughput → 4x iterations
+        PrecisionFormat.FP32: 1000,  # 2x throughput → 2x iterations
+        PrecisionFormat.FP64: 500,  # Reference budget
+    }
 
-    for precision in precisions:
-        print(f"  Running {precision.value}...", end=" ", flush=True)
+    for precision, max_iters in iteration_budgets.items():
+        print(
+            f"  Running {precision.value} ({max_iters} iterations)...",
+            end=" ",
+            flush=True,
+        )
 
-        # Run power method
+        # Use float('inf') as target to disable early stopping
+        # This ensures all precisions run for max_iters so we see real data
+        # (the fluctuations around the precision floor, not repeated final values)
         trace = run_power_method(
             experiment.matrix,
             precision,
             experiment.true_eigenvalue,
-            max_iterations=2000,
+            max_iterations=max_iters,
+            target_error=float("inf"),  # Disable convergence-based stopping
             initial_vector=experiment.initial_vector,
         )
 
@@ -101,7 +112,7 @@ def generate_single_precision_traces(
 
         # Write to JSON file
         output_file = output_dir / f"trace_{precision.value}.json"
-        with open(output_file, "w") as f:
+        with output_file.open("w") as f:
             json.dump(output, f, indent=2)
 
         print(f"✓ {trace.iterations} iterations, converged={trace.converged}")
@@ -140,16 +151,17 @@ def generate_cascading_trace(
         convergence_type="slow",
     )
 
-    # Run cascading execution
+    # Run cascading execution with tight tolerance to require FP64
+    # Using 1e-12 ensures we need FP64 (FP32 floor is ~1e-7)
     print("  Running cascading precision (FP8→FP16→FP32→FP64)...", end=" ", flush=True)
-    trace = cascading.run(target_residual=1e-6, max_effective_iterations=5000)
+    trace = cascading.run(target_residual=1e-12, max_effective_iterations=5000)
 
     # Convert to JSON-serializable format using built-in method
     output = cascading.to_dict(trace)
 
     # Write to JSON file
     output_file = output_dir / "trace_cascading.json"
-    with open(output_file, "w") as f:
+    with output_file.open("w") as f:
         json.dump(output, f, indent=2)
 
     print(
@@ -174,10 +186,11 @@ def main() -> None:
     print("Precision Lab - Trace Data Generation")
     print("=" * 70)
 
-    # Configuration
-    matrix_size = 256
-    condition_number = 100.0
+    # Configuration - matching README specs
+    matrix_size = 1024  # 1024x1024 matrix as documented
+    condition_number = 100.0  # κ=100
     seed = 42
+    # Note: eigenvalue_gap=1.1 (default) gives 10% difference between λ₁ and λ₂
 
     output_dir = Path(__file__).parent / "traces"
 
