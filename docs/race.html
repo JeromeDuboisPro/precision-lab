@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Precision Race - Precision Lab</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-6BTEZ4t3hChF0DuGYQyYuXHfYaYJrMQ5FJX5TOFJ4iodXWLBo5T9oPzRu9CWfxhC" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js" integrity="sha384-eNbbQsjEVkKjDLPzJgHGmXs8qF7LfqDJ9DlKKAp+YNP3Y+1VCaSQs/0jvdlJ/H3V" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js" integrity="sha384-k0InL/n5m9NpBmRkJR4VjJF/FhfBOeGbCZM5GS0Yxv1A2jC/4NTRXJ6d8i7Cpe4A" crossorigin="anonymous"></script>
 </head>
 <body>
     <header>
@@ -33,6 +35,7 @@
                         <button id="playBtn" class="control-button">Play</button>
                         <button id="pauseBtn" class="control-button" disabled>Pause</button>
                         <button id="resetBtn" class="control-button">Reset</button>
+                        <button id="resetZoomBtn" class="control-button">Reset Zoom</button>
                         <label style="color: var(--text-secondary); margin-left: 1rem;">
                             Speed:
                             <select id="speedSelect" style="margin-left: 0.5rem; padding: 0.25rem;">
@@ -42,6 +45,9 @@
                                 <option value="10">10x</option>
                             </select>
                         </label>
+                        <span style="color: var(--text-secondary); margin-left: 1rem; font-size: 0.85rem;">
+                            Space: Play/Pause | R: Reset | Esc: Reset Zoom | ←/→: Step | Ctrl+Wheel: Zoom | Shift+Drag: Pan
+                        </span>
                     </div>
 
                     <div class="chart-wrapper">
@@ -70,31 +76,124 @@
 
                 <div class="metrics">
                     <div class="metric-card fp8">
-                        <div class="metric-label">FP8 Iterations</div>
+                        <div class="metric-label">FP8</div>
                         <div class="metric-value" id="fp8-iters">0</div>
+                        <div class="metric-residual" id="fp8-residual" style="font-size: 0.85rem; opacity: 0.8;">--</div>
                     </div>
                     <div class="metric-card fp16">
-                        <div class="metric-label">FP16 Iterations</div>
+                        <div class="metric-label">FP16</div>
                         <div class="metric-value" id="fp16-iters">0</div>
+                        <div class="metric-residual" id="fp16-residual" style="font-size: 0.85rem; opacity: 0.8;">--</div>
                     </div>
                     <div class="metric-card fp32">
-                        <div class="metric-label">FP32 Iterations</div>
+                        <div class="metric-label">FP32</div>
                         <div class="metric-value" id="fp32-iters">0</div>
+                        <div class="metric-residual" id="fp32-residual" style="font-size: 0.85rem; opacity: 0.8;">--</div>
                     </div>
                     <div class="metric-card fp64">
-                        <div class="metric-label">FP64 Iterations</div>
+                        <div class="metric-label">FP64</div>
                         <div class="metric-value" id="fp64-iters">0</div>
+                        <div class="metric-residual" id="fp64-residual" style="font-size: 0.85rem; opacity: 0.8;">--</div>
+                    </div>
+                </div>
+
+                <div class="viz-container" style="margin-top: 2rem;">
+                    <h3>Experiment Conditions</h3>
+                    <div id="experiment-conditions" style="color: var(--text-secondary);">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+                            <!-- Matrix Properties -->
+                            <div style="background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px; border-left: 3px solid var(--accent-color);">
+                                <h4 style="color: var(--text-primary); margin-bottom: 0.75rem; font-size: 0.95rem;">Matrix Properties</h4>
+                                <div style="font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.8;">
+                                    <div>Size: <span id="cond-matrix-size">--</span> × <span id="cond-matrix-size2">--</span> SPD</div>
+                                    <div>Condition number κ: <span id="cond-kappa">--</span></div>
+                                    <div>Frobenius norm: <span id="cond-frobenius">--</span></div>
+                                </div>
+                            </div>
+
+                            <!-- Eigenvalue Properties -->
+                            <div style="background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px; border-left: 3px solid #50c878;">
+                                <h4 style="color: var(--text-primary); margin-bottom: 0.75rem; font-size: 0.95rem;">Eigenvalue Properties</h4>
+                                <div style="font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.8;">
+                                    <div>λ₁ (dominant): <span id="cond-lambda1">--</span></div>
+                                    <div>λ₂ (second): <span id="cond-lambda2">--</span></div>
+                                    <div>Gap ratio λ₂/λ₁: <span id="cond-gap-ratio">--</span></div>
+                                    <div>Convergence rate: <span id="cond-conv-rate">--</span>% per iteration</div>
+                                </div>
+                            </div>
+
+                            <!-- Experiment Setup -->
+                            <div style="background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px; border-left: 3px solid #9b59b6;">
+                                <h4 style="color: var(--text-primary); margin-bottom: 0.75rem; font-size: 0.95rem;">Experiment Setup</h4>
+                                <div style="font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.8;">
+                                    <div>Random seed: <span id="cond-seed">--</span></div>
+                                    <div>Convergence type: <span id="cond-conv-type">--</span></div>
+                                    <div>Initial vector: random, normalized</div>
+                                    <div>Algorithm: Power Method</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Precision Characteristics Table -->
+                        <div style="margin-top: 1.5rem; overflow-x: auto;">
+                            <h4 style="color: var(--text-primary); margin-bottom: 0.75rem; font-size: 0.95rem;">Precision Characteristics</h4>
+                            <table style="width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: 0.85rem;">
+                                <thead>
+                                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                        <th style="text-align: left; padding: 0.5rem; color: var(--text-primary);">Format</th>
+                                        <th style="text-align: right; padding: 0.5rem; color: var(--text-primary);">Mantissa</th>
+                                        <th style="text-align: right; padding: 0.5rem; color: var(--text-primary);">Machine ε</th>
+                                        <th style="text-align: right; padding: 0.5rem; color: var(--text-primary);">Expected Floor</th>
+                                        <th style="text-align: right; padding: 0.5rem; color: var(--text-primary);">Iteration Budget</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                        <td style="padding: 0.5rem; color: var(--fp8-color);">FP8 (E4M3)</td>
+                                        <td style="text-align: right; padding: 0.5rem;">3 bits</td>
+                                        <td style="text-align: right; padding: 0.5rem;">1.25×10⁻¹</td>
+                                        <td style="text-align: right; padding: 0.5rem;">~10⁻²</td>
+                                        <td style="text-align: right; padding: 0.5rem; color: var(--fp8-color);">3,000</td>
+                                    </tr>
+                                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                        <td style="padding: 0.5rem; color: var(--fp16-color);">FP16</td>
+                                        <td style="text-align: right; padding: 0.5rem;">10 bits</td>
+                                        <td style="text-align: right; padding: 0.5rem;">9.77×10⁻⁴</td>
+                                        <td style="text-align: right; padding: 0.5rem;">~10⁻³</td>
+                                        <td style="text-align: right; padding: 0.5rem; color: var(--fp16-color);">2,000</td>
+                                    </tr>
+                                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                        <td style="padding: 0.5rem; color: var(--fp32-color);">FP32</td>
+                                        <td style="text-align: right; padding: 0.5rem;">23 bits</td>
+                                        <td style="text-align: right; padding: 0.5rem;">1.19×10⁻⁷</td>
+                                        <td style="text-align: right; padding: 0.5rem;">~10⁻⁷</td>
+                                        <td style="text-align: right; padding: 0.5rem; color: var(--fp32-color);">1,000</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 0.5rem; color: var(--fp64-color);">FP64</td>
+                                        <td style="text-align: right; padding: 0.5rem;">52 bits</td>
+                                        <td style="text-align: right; padding: 0.5rem;">2.22×10⁻¹⁶</td>
+                                        <td style="text-align: right; padding: 0.5rem;">~10⁻¹⁵</td>
+                                        <td style="text-align: right; padding: 0.5rem; color: var(--fp64-color);">500 (ref)</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.5rem;">
+                                Iteration budgets scaled by throughput multipliers: all formats run for equivalent compute time (500 effective FP64 iterations).
+                            </p>
+                        </div>
                     </div>
                 </div>
 
                 <div class="viz-container" style="margin-top: 2rem;">
                     <h3>Key Observations</h3>
                     <ul style="color: var(--text-secondary); line-height: 1.8;">
-                        <li><strong style="color: var(--fp8-color);">FP8</strong> makes rapid initial progress but stagnates around 10⁻² residual due to ε ≈ 0.125</li>
-                        <li><strong style="color: var(--fp16-color);">FP16</strong> achieves ~10⁻³ residual before hitting its precision floor (ε ≈ 10⁻³)</li>
-                        <li><strong style="color: var(--fp32-color);">FP32</strong> converges smoothly to ~10⁻⁷ residual, sufficient for most engineering applications</li>
-                        <li><strong style="color: var(--fp64-color);">FP64</strong> achieves full machine precision convergence beyond 10⁻¹⁵ residual</li>
-                        <li>All formats follow the same initial trajectory but diverge when approaching their respective precision limits</li>
+                        <li><strong>Normalized by throughput:</strong> X-axis shows "effective FP64 iterations" - each precision runs for equivalent compute time (FP8 runs 6× more raw iterations but appears aligned with FP64)</li>
+                        <li><strong style="color: var(--fp8-color);">FP8</strong> (3000 raw iterations = 500 effective): stagnates around 10⁻² residual due to ε ≈ 0.125</li>
+                        <li><strong style="color: var(--fp16-color);">FP16</strong> (2000 raw = 500 effective): achieves ~10⁻³ residual before hitting precision floor</li>
+                        <li><strong style="color: var(--fp32-color);">FP32</strong> (1000 raw = 500 effective): converges to ~10⁻⁷ residual, sufficient for most applications</li>
+                        <li><strong style="color: var(--fp64-color);">FP64</strong> (500 raw = 500 effective): achieves machine precision convergence beyond 10⁻¹⁵</li>
+                        <li>All formats follow the same initial trajectory when aligned by compute cost, but diverge at their precision floors</li>
                     </ul>
                 </div>
             </div>
@@ -107,17 +206,61 @@
         </div>
     </footer>
 
-    <script src="js/visualizations.js"></script>
+    <script src="js/visualizations.js?v=15"></script>
     <script>
         // Load trace data and initialize race visualization
         async function initRace() {
+            // Show loading state
+            const canvas = document.getElementById('chart-canvas');
+            const loadingOverlay = document.createElement('div');
+            loadingOverlay.id = 'loading-overlay';
+            loadingOverlay.innerHTML = '<div class="loading-spinner"></div><p>Loading trace data...</p>';
+            loadingOverlay.style.cssText = 'position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--bg-primary);z-index:10;';
+            canvas.parentElement.appendChild(loadingOverlay);
+
             try {
                 const [fp8Data, fp16Data, fp32Data, fp64Data] = await Promise.all([
-                    fetch('data/fp8_e4m3_trace.json').then(r => r.json()),
-                    fetch('data/fp16_trace.json').then(r => r.json()),
-                    fetch('data/fp32_trace.json').then(r => r.json()),
-                    fetch('data/fp64_trace.json').then(r => r.json())
+                    fetch('data/fp8_e4m3_trace.json').then(r => { if (!r.ok) throw new Error(`Failed to load FP8 trace: ${r.status}`); return r.json(); }),
+                    fetch('data/fp16_trace.json').then(r => { if (!r.ok) throw new Error(`Failed to load FP16 trace: ${r.status}`); return r.json(); }),
+                    fetch('data/fp32_trace.json').then(r => { if (!r.ok) throw new Error(`Failed to load FP32 trace: ${r.status}`); return r.json(); }),
+                    fetch('data/fp64_trace.json').then(r => { if (!r.ok) throw new Error(`Failed to load FP64 trace: ${r.status}`); return r.json(); })
                 ]);
+
+                // Remove loading overlay
+                loadingOverlay.remove();
+
+                console.log('Loaded traces:', {
+                    fp8: fp8Data.trace?.length || 'missing',
+                    fp16: fp16Data.trace?.length || 'missing',
+                    fp32: fp32Data.trace?.length || 'missing',
+                    fp64: fp64Data.trace?.length || 'missing'
+                });
+
+                // Populate experiment conditions from metadata (using FP64 as reference)
+                const meta = fp64Data.metadata;
+                const fingerprint = meta.matrix_fingerprint || {};
+
+                // Matrix properties
+                document.getElementById('cond-matrix-size').textContent = meta.matrix_size;
+                document.getElementById('cond-matrix-size2').textContent = meta.matrix_size;
+                document.getElementById('cond-kappa').textContent = meta.condition_number.toFixed(0);
+                document.getElementById('cond-frobenius').textContent =
+                    fingerprint.frobenius_norm ? fingerprint.frobenius_norm.toFixed(2) : '--';
+
+                // Eigenvalue properties
+                const lambda1 = fingerprint.eigenvalue_signature?.[0] || meta.true_eigenvalue;
+                const lambda2 = fingerprint.eigenvalue_signature?.[1];
+                const gapRatio = fingerprint.eigenvalue_ratio_lambda2_lambda1;
+
+                document.getElementById('cond-lambda1').textContent = lambda1.toFixed(4);
+                document.getElementById('cond-lambda2').textContent = lambda2 ? lambda2.toFixed(4) : '--';
+                document.getElementById('cond-gap-ratio').textContent = gapRatio ? gapRatio.toFixed(4) : '--';
+                document.getElementById('cond-conv-rate').textContent =
+                    gapRatio ? ((1 - gapRatio) * 100).toFixed(1) : '--';
+
+                // Experiment setup
+                document.getElementById('cond-seed').textContent = meta.seed;
+                document.getElementById('cond-conv-type').textContent = meta.convergence_type;
 
                 const raceViz = new PrecisionRaceVisualization('chart-canvas', {
                     fp8: fp8Data,
@@ -149,10 +292,24 @@
                     raceViz.setSpeed(parseFloat(e.target.value));
                 });
 
+                document.getElementById('resetZoomBtn').addEventListener('click', () => {
+                    raceViz.resetZoom();
+                });
+
+                // Initialize keyboard navigation
+                initKeyboardNavigation(raceViz);
+
             } catch (error) {
                 console.error('Failed to load trace data:', error);
-                document.getElementById('chart-canvas').innerHTML =
-                    '<div style="color: var(--text-secondary); text-align: center; padding: 2rem;">Error loading trace data. Please check console for details.</div>';
+                // Remove loading overlay if it exists
+                const overlay = document.getElementById('loading-overlay');
+                if (overlay) overlay.remove();
+
+                // Show error in a proper container (not canvas innerHTML)
+                const errorDiv = document.createElement('div');
+                errorDiv.style.cssText = 'position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;background:var(--bg-primary);color:var(--text-secondary);text-align:center;padding:2rem;';
+                errorDiv.innerHTML = `<div><p style="color:#ff6b6b;font-weight:600;">Error loading trace data</p><p style="font-size:0.9rem;margin-top:0.5rem;">${error.message}</p></div>`;
+                document.getElementById('chart-canvas').parentElement.appendChild(errorDiv);
             }
         }
 

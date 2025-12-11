@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cascading Precision - Precision Lab</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-6BTEZ4t3hChF0DuGYQyYuXHfYaYJrMQ5FJX5TOFJ4iodXWLBo5T9oPzRu9CWfxhC" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js" integrity="sha384-eNbbQsjEVkKjDLPzJgHGmXs8qF7LfqDJ9DlKKAp+YNP3Y+1VCaSQs/0jvdlJ/H3V" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js" integrity="sha384-k0InL/n5m9NpBmRkJR4VjJF/FhfBOeGbCZM5GS0Yxv1A2jC/4NTRXJ6d8i7Cpe4A" crossorigin="anonymous"></script>
 </head>
 <body>
     <header>
@@ -21,7 +23,8 @@
                 <p class="viz-description">
                     Watch the novel cascading precision strategy in action. Starting at FP8 for maximum throughput,
                     the algorithm automatically escalates to FP16, then FP32, and finally FP64 as it approaches
-                    each precision's natural convergence floor. This achieves 2-3× speedup over FP64-only.
+                    each precision's natural convergence floor. The FP64 reference uses the same effective compute budget
+                    to show the dramatic advantage of cascading: far better residual at equal cost.
                 </p>
             </div>
         </section>
@@ -33,6 +36,7 @@
                         <button id="playBtn" class="control-button">Play</button>
                         <button id="pauseBtn" class="control-button" disabled>Pause</button>
                         <button id="resetBtn" class="control-button">Reset</button>
+                        <button id="resetZoomBtn" class="control-button">Reset Zoom</button>
                         <label style="color: var(--text-secondary); margin-left: 1rem;">
                             Speed:
                             <select id="speedSelect" style="margin-left: 0.5rem; padding: 0.25rem;">
@@ -42,6 +46,9 @@
                                 <option value="20">20x</option>
                             </select>
                         </label>
+                        <span style="color: var(--text-secondary); margin-left: 1rem; font-size: 0.85rem;">
+                            Space: Play/Pause | R: Reset | Esc: Reset Zoom | ←/→: Step | Ctrl+Wheel: Zoom | Shift+Drag: Pan
+                        </span>
                     </div>
 
                     <div class="chart-wrapper">
@@ -51,6 +58,21 @@
                     <div class="cascade-indicator">
                         <div class="current-precision" id="current-precision">FP8 (E4M3)</div>
                         <div class="transition-info" id="transition-info">Starting with lowest precision for maximum throughput</div>
+                    </div>
+
+                    <div class="comparison-summary" style="margin-top: 1.5rem; padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 8px;">
+                        <h4 style="color: var(--text-primary); margin-bottom: 0.75rem;">Performance Comparison</h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; font-family: var(--font-mono); font-size: 0.9rem;">
+                            <div style="padding: 0.75rem; background: rgba(155, 89, 182, 0.2); border-left: 3px solid var(--fp64-color); border-radius: 4px;">
+                                <div style="color: var(--text-secondary); margin-bottom: 0.25rem;">FP64 Only (Reference)</div>
+                                <div style="color: var(--fp64-color);" id="fp64-summary">-- iterations → residual --</div>
+                            </div>
+                            <div style="padding: 0.75rem; background: rgba(80, 200, 120, 0.2); border-left: 3px solid var(--fp32-color); border-radius: 4px;">
+                                <div style="color: var(--text-secondary); margin-bottom: 0.25rem;">Cascading Precision</div>
+                                <div style="color: var(--fp32-color);" id="cascade-summary">-- eff. iterations → residual --</div>
+                            </div>
+                        </div>
+                        <div id="speedup-summary" style="margin-top: 0.75rem; text-align: center; color: var(--text-primary); font-weight: bold;">Speedup: --×</div>
                     </div>
 
                     <div class="legend">
@@ -93,6 +115,120 @@
                 </div>
 
                 <div class="viz-container" style="margin-top: 2rem;">
+                    <h3>Experiment Conditions</h3>
+                    <div id="experiment-conditions" style="color: var(--text-secondary);">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+                            <!-- Matrix Properties -->
+                            <div style="background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px; border-left: 3px solid var(--accent-color);">
+                                <h4 style="color: var(--text-primary); margin-bottom: 0.75rem; font-size: 0.95rem;">Matrix Properties</h4>
+                                <div style="font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.8;">
+                                    <div>Size: <span id="cond-matrix-size">--</span> × <span id="cond-matrix-size2">--</span> SPD</div>
+                                    <div>Condition number κ: <span id="cond-kappa">--</span></div>
+                                    <div>Frobenius norm: <span id="cond-frobenius">--</span></div>
+                                </div>
+                            </div>
+
+                            <!-- Eigenvalue Properties -->
+                            <div style="background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px; border-left: 3px solid #50c878;">
+                                <h4 style="color: var(--text-primary); margin-bottom: 0.75rem; font-size: 0.95rem;">Eigenvalue Properties</h4>
+                                <div style="font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.8;">
+                                    <div>λ₁ (dominant): <span id="cond-lambda1">--</span></div>
+                                    <div>λ₂ (second): <span id="cond-lambda2">--</span></div>
+                                    <div>Gap ratio λ₂/λ₁: <span id="cond-gap-ratio">--</span></div>
+                                    <div>Convergence rate: <span id="cond-conv-rate">--</span>% per iteration</div>
+                                </div>
+                            </div>
+
+                            <!-- Experiment Setup -->
+                            <div style="background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px; border-left: 3px solid #9b59b6;">
+                                <h4 style="color: var(--text-primary); margin-bottom: 0.75rem; font-size: 0.95rem;">Experiment Setup</h4>
+                                <div style="font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.8;">
+                                    <div>Random seed: <span id="cond-seed">--</span></div>
+                                    <div>Convergence type: <span id="cond-conv-type">--</span></div>
+                                    <div>Initial vector: random, normalized</div>
+                                    <div>Algorithm: Cascading Power Method</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Throughput Multipliers & Precision Characteristics -->
+                        <div style="margin-top: 1.5rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                            <!-- Throughput Multipliers -->
+                            <div style="overflow-x: auto;">
+                                <h4 style="color: var(--text-primary); margin-bottom: 0.75rem; font-size: 0.95rem;">Throughput Multipliers</h4>
+                                <table style="width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: 0.85rem;">
+                                    <thead>
+                                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                            <th style="text-align: left; padding: 0.5rem; color: var(--text-primary);">Format</th>
+                                            <th style="text-align: right; padding: 0.5rem; color: var(--text-primary);">Throughput</th>
+                                            <th style="text-align: right; padding: 0.5rem; color: var(--text-primary);">Effective Cost</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                            <td style="padding: 0.5rem; color: var(--fp8-color);">FP8</td>
+                                            <td style="text-align: right; padding: 0.5rem;">6×</td>
+                                            <td style="text-align: right; padding: 0.5rem;">0.167 per iter</td>
+                                        </tr>
+                                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                            <td style="padding: 0.5rem; color: var(--fp16-color);">FP16</td>
+                                            <td style="text-align: right; padding: 0.5rem;">4×</td>
+                                            <td style="text-align: right; padding: 0.5rem;">0.25 per iter</td>
+                                        </tr>
+                                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                            <td style="padding: 0.5rem; color: var(--fp32-color);">FP32</td>
+                                            <td style="text-align: right; padding: 0.5rem;">2×</td>
+                                            <td style="text-align: right; padding: 0.5rem;">0.5 per iter</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 0.5rem; color: var(--fp64-color);">FP64</td>
+                                            <td style="text-align: right; padding: 0.5rem;">1× (baseline)</td>
+                                            <td style="text-align: right; padding: 0.5rem;">1.0 per iter</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Precision Floors -->
+                            <div style="overflow-x: auto;">
+                                <h4 style="color: var(--text-primary); margin-bottom: 0.75rem; font-size: 0.95rem;">Precision Characteristics</h4>
+                                <table style="width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: 0.85rem;">
+                                    <thead>
+                                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                            <th style="text-align: left; padding: 0.5rem; color: var(--text-primary);">Format</th>
+                                            <th style="text-align: right; padding: 0.5rem; color: var(--text-primary);">Machine ε</th>
+                                            <th style="text-align: right; padding: 0.5rem; color: var(--text-primary);">Floor</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                            <td style="padding: 0.5rem; color: var(--fp8-color);">FP8</td>
+                                            <td style="text-align: right; padding: 0.5rem;">1.25×10⁻¹</td>
+                                            <td style="text-align: right; padding: 0.5rem;">~10⁻²</td>
+                                        </tr>
+                                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                            <td style="padding: 0.5rem; color: var(--fp16-color);">FP16</td>
+                                            <td style="text-align: right; padding: 0.5rem;">9.77×10⁻⁴</td>
+                                            <td style="text-align: right; padding: 0.5rem;">~10⁻³</td>
+                                        </tr>
+                                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                            <td style="padding: 0.5rem; color: var(--fp32-color);">FP32</td>
+                                            <td style="text-align: right; padding: 0.5rem;">1.19×10⁻⁷</td>
+                                            <td style="text-align: right; padding: 0.5rem;">~10⁻⁷</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 0.5rem; color: var(--fp64-color);">FP64</td>
+                                            <td style="text-align: right; padding: 0.5rem;">2.22×10⁻¹⁶</td>
+                                            <td style="text-align: right; padding: 0.5rem;">~10⁻¹⁵</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="viz-container" style="margin-top: 2rem;">
                     <h3>Cascading Strategy</h3>
                     <ul style="color: var(--text-secondary); line-height: 1.8;">
                         <li><strong>Start at FP8:</strong> Exploit 6× throughput advantage to make rapid early progress (25% → 5% error)</li>
@@ -123,14 +259,56 @@
         </div>
     </footer>
 
-    <script src="js/visualizations.js"></script>
+    <script src="js/visualizations.js?v=15"></script>
     <script>
         // Load cascade trace data and initialize visualization
         async function initCascading() {
-            try {
-                const cascadeData = await fetch('data/cascade_trace.json').then(r => r.json());
+            // Show loading state
+            const canvas = document.getElementById('chart-canvas');
+            const loadingOverlay = document.createElement('div');
+            loadingOverlay.id = 'loading-overlay';
+            loadingOverlay.innerHTML = '<div class="loading-spinner"></div><p>Loading trace data...</p>';
+            loadingOverlay.style.cssText = 'position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--bg-primary);z-index:10;';
+            canvas.parentElement.appendChild(loadingOverlay);
 
-                const cascadeViz = new CascadingPrecisionVisualization('chart-canvas', cascadeData);
+            try {
+                // Load both cascade and FP64 reference data
+                const [cascadeData, fp64Data] = await Promise.all([
+                    fetch('data/cascade_trace.json').then(r => { if (!r.ok) throw new Error(`Failed to load cascade trace: ${r.status}`); return r.json(); }),
+                    fetch('data/fp64_trace.json').then(r => { if (!r.ok) throw new Error(`Failed to load FP64 trace: ${r.status}`); return r.json(); })
+                ]);
+
+                // Remove loading overlay
+                loadingOverlay.remove();
+
+                // Populate experiment conditions from cascade metadata
+                const meta = cascadeData.metadata;
+                const fingerprint = meta.matrix_fingerprint || {};
+
+                // Matrix properties
+                document.getElementById('cond-matrix-size').textContent = meta.matrix_size;
+                document.getElementById('cond-matrix-size2').textContent = meta.matrix_size;
+                document.getElementById('cond-kappa').textContent = meta.condition_number.toFixed(0);
+                document.getElementById('cond-frobenius').textContent =
+                    fingerprint.frobenius_norm ? fingerprint.frobenius_norm.toFixed(2) : '--';
+
+                // Eigenvalue properties
+                const lambda1 = fingerprint.eigenvalue_signature?.[0] || meta.true_eigenvalue;
+                const lambda2 = fingerprint.eigenvalue_signature?.[1];
+                const gapRatio = fingerprint.eigenvalue_ratio_lambda2_lambda1;
+
+                document.getElementById('cond-lambda1').textContent = lambda1.toFixed(4);
+                document.getElementById('cond-lambda2').textContent = lambda2 ? lambda2.toFixed(4) : '--';
+                document.getElementById('cond-gap-ratio').textContent = gapRatio ? gapRatio.toFixed(4) : '--';
+                document.getElementById('cond-conv-rate').textContent =
+                    gapRatio ? ((1 - gapRatio) * 100).toFixed(1) : '--';
+
+                // Experiment setup
+                document.getElementById('cond-seed').textContent = meta.seed;
+                document.getElementById('cond-conv-type').textContent = meta.convergence_type;
+
+                // Pass FP64 as reference for comparison
+                const cascadeViz = new CascadingPrecisionVisualization('chart-canvas', cascadeData, fp64Data);
 
                 // Wire up controls
                 document.getElementById('playBtn').addEventListener('click', () => {
@@ -155,6 +333,13 @@
                     cascadeViz.setSpeed(parseFloat(e.target.value));
                 });
 
+                document.getElementById('resetZoomBtn').addEventListener('click', () => {
+                    cascadeViz.resetZoom();
+                });
+
+                // Initialize keyboard navigation
+                initKeyboardNavigation(cascadeViz);
+
                 // Display transition details
                 const transitions = cascadeData.segments;
                 const detailsHtml = transitions.map((seg, i) => {
@@ -171,8 +356,15 @@
 
             } catch (error) {
                 console.error('Failed to load cascade trace data:', error);
-                document.getElementById('chart-canvas').innerHTML =
-                    '<div style="color: var(--text-secondary); text-align: center; padding: 2rem;">Error loading trace data. Please check console for details.</div>';
+                // Remove loading overlay if it exists
+                const overlay = document.getElementById('loading-overlay');
+                if (overlay) overlay.remove();
+
+                // Show error in a proper container (not canvas innerHTML)
+                const errorDiv = document.createElement('div');
+                errorDiv.style.cssText = 'position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;background:var(--bg-primary);color:var(--text-secondary);text-align:center;padding:2rem;';
+                errorDiv.innerHTML = `<div><p style="color:#ff6b6b;font-weight:600;">Error loading trace data</p><p style="font-size:0.9rem;margin-top:0.5rem;">${error.message}</p></div>`;
+                document.getElementById('chart-canvas').parentElement.appendChild(errorDiv);
             }
         }
 

@@ -343,18 +343,25 @@ section {
 }
 
 .control-button {
-    padding: 0.5rem 1rem;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0.75rem 1.25rem;
     background: var(--accent);
     color: var(--bg-primary);
     border: none;
     border-radius: var(--radius-md);
     font-weight: 600;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: background 0.2s, outline 0.2s;
 }
 
 .control-button:hover {
     background: var(--text-primary);
+}
+
+.control-button:focus {
+    outline: 2px solid var(--text-primary);
+    outline-offset: 2px;
 }
 
 .control-button:disabled {
@@ -416,6 +423,21 @@ section {
     justify-content: center;
     margin-top: var(--spacing-sm);
     flex-wrap: wrap;
+}
+
+/* Loading spinner */
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: var(--spacing-sm);
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
 }
 
 .legend-item {
@@ -491,6 +513,31 @@ section {
 
     .chart-wrapper {
         height: 400px;
+    }
+
+    .viz-controls {
+        flex-wrap: wrap;
+    }
+}
+
+/* Small mobile legend fix */
+@media (max-width: 400px) {
+    .legend {
+        flex-direction: column;
+        align-items: center;
+        gap: var(--spacing-sm);
+    }
+
+    .viz-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .viz-controls label,
+    .viz-controls span {
+        text-align: center;
+        margin-left: 0 !important;
+        margin-top: var(--spacing-xs);
     }
 }
 
