@@ -74,21 +74,21 @@ class TestHTMLPages:
         sri_pattern = r'integrity="sha384-[A-Za-z0-9+/=]+"'
         matches = re.findall(sri_pattern, cascading_html)
         # Should have 3 SRI hashes (chart.js, hammer.js, chartjs-plugin-zoom)
-        assert (
-            len(matches) >= 3
-        ), f"Expected at least 3 SRI hashes, found {len(matches)}"
+        assert len(matches) >= 3, (
+            f"Expected at least 3 SRI hashes, found {len(matches)}"
+        )
 
     def test_cascading_html_uses_cascade_trace_data(self, cascading_html: str) -> None:
         """Verify cascading.html references cascade trace data file."""
-        assert (
-            "cascade_trace.json" in cascading_html
-        ), "Missing cascade_trace.json reference"
+        assert "cascade_trace.json" in cascading_html, (
+            "Missing cascade_trace.json reference"
+        )
 
     def test_race_html_uses_precision_trace_data(self, race_html: str) -> None:
         """Verify race.html references all precision trace data files."""
-        assert (
-            "fp8_e4m3_trace.json" in race_html
-        ), "Missing fp8_e4m3_trace.json reference"
+        assert "fp8_e4m3_trace.json" in race_html, (
+            "Missing fp8_e4m3_trace.json reference"
+        )
         assert "fp16_trace.json" in race_html, "Missing fp16_trace.json reference"
         assert "fp32_trace.json" in race_html, "Missing fp32_trace.json reference"
         assert "fp64_trace.json" in race_html, "Missing fp64_trace.json reference"
@@ -198,9 +198,9 @@ class TestTraceDataFiles:
         trace = fp64_trace["trace"]
         final_residual = trace[-1]["residual_norm"]
         # FP64 should reach at least 1e-10
-        assert (
-            final_residual < 1e-10
-        ), f"FP64 residual {final_residual} unexpectedly high"
+        assert final_residual < 1e-10, (
+            f"FP64 residual {final_residual} unexpectedly high"
+        )
 
     def test_traces_use_same_matrix(
         self, fp8_trace: dict, fp16_trace: dict, fp32_trace: dict, fp64_trace: dict
