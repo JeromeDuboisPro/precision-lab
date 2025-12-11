@@ -24,26 +24,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
       - name: Setup Pages
         uses: actions/configure-pages@v4
-
-      - name: Install dependencies
-        working-directory: ./web
-        run: npm ci
-
-      - name: Build
-        working-directory: ./web
-        run: npm run build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./web/dist
+          path: ./docs
 
   deploy:
     environment:
