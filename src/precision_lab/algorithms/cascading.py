@@ -6,12 +6,15 @@ Implements the cascading precision strategy: FP8 → FP16 → FP32 → FP64
 - Escalate to FP32/FP64 only when higher accuracy needed
 - Carry eigenvector state across transitions for efficiency
 
-Modern GPU Performance Model:
-    Uses realistic speedup factors based on tensor core architectures:
-    - FP8: 6× throughput vs FP64 (tensor cores + memory bandwidth)
-    - FP16: 4× throughput vs FP64
+Performance Model (Simulated):
+    Uses theoretical peak throughput ratios for demonstration:
+    - FP8: 6× throughput vs FP64 (theoretical tensor core peak)
+    - FP16: 4× throughput vs FP64 (theoretical half-precision units)
     - FP32: 2× throughput vs FP64
     - FP64: baseline reference
+
+    Note: These are theoretical maximum speedups. Real-world performance
+    varies with memory bandwidth (power method is memory-bound).
 
 References:
 - Higham, N.J.: "Accuracy and Stability of Numerical Algorithms" (2002)
