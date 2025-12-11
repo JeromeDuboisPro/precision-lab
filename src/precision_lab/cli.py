@@ -35,7 +35,7 @@ def version_callback(value: bool) -> None:
         raise typer.Exit()
 
 
-@app.callback()  # type: ignore[misc]
+@app.callback()  # type: ignore[misc,unused-ignore]
 def main(
     version: Annotated[
         bool,
@@ -52,7 +52,7 @@ def main(
     pass
 
 
-@app.command()  # type: ignore[misc]
+@app.command()  # type: ignore[misc,unused-ignore]
 def info() -> None:
     """Display information about available precision formats."""
     table = Table(title="Available Precision Formats")
@@ -90,7 +90,7 @@ def info() -> None:
         )
 
 
-@app.command()  # type: ignore[misc]
+@app.command()  # type: ignore[misc,unused-ignore]
 def compare(
     formats: Annotated[
         list[str] | None,
@@ -124,7 +124,7 @@ def compare(
     console.print(table)
 
 
-@app.command()  # type: ignore[misc]
+@app.command()  # type: ignore[misc,unused-ignore]
 def run(
     matrix_size: Annotated[
         int,
