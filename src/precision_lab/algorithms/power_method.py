@@ -47,7 +47,11 @@ class ConvergenceResult:
     """Result of convergence check."""
 
     residual_norm: float
-    """Normalized residual ||A*x - λ*x|| / (||A|| * ||x||)."""
+    """Normalized residual ||A*x - λ*x|| / (|λ| * ||x||).
+
+    Note: Uses |λ| instead of ||A||₂ for efficiency.
+    For SPD matrices, ||A||₂ = λ_max ≈ |λ| when converged.
+    """
 
     relative_error: float
     """Relative error |λ - λ_true| / |λ_true|."""
@@ -218,8 +222,12 @@ class PowerIteration:
         """Check convergence using FP64 reference matrix.
 
         Implements precision-aware convergence criteria:
-        - Normalized residual: ||A*x - λ*x|| / (||A|| * ||x||) < tol
+        - Normalized residual: ||A*x - λ*x|| / (|λ| * ||x||) < tol
         - Relative error: |λ - λ_true| / |λ_true| < tol
+
+        Note:
+            Uses |λ| as approximation for ||A||₂ (spectral norm).
+            Valid for SPD matrices where ||A||₂ = λ_max ≈ |λ| at convergence.
 
         Args:
             eigenvalue: Current eigenvalue estimate.
@@ -241,7 +249,9 @@ class PowerIteration:
         residual = self._A_fp64 @ x_fp64 - eigenvalue_fp64 * x_fp64
         residual_norm = np.linalg.norm(residual)
 
-        # Normalized residual: ||r|| / (||A|| * ||x||)
+        # Normalized residual: ||r|| / (|λ| * ||x||)
+        # Note: Using |λ| as approximation for ||A||₂ (spectral norm).
+        # For SPD matrices: ||A||₂ = λ_max ≈ |λ| when converged.
         A_norm = abs(eigenvalue_fp64)
         x_norm = np.linalg.norm(x_fp64)
 
@@ -404,10 +414,68 @@ def run_power_method(
     )
 
 
+def run_power_method_batch(
+    matrices: list[NDArray[np.floating]],
+    precision: PrecisionFormat | str,
+    true_eigenvalues: list[float],
+    *,
+    max_iterations: int = 1000,
+    target_error: float | None = None,
+    initial_vectors: list[NDArray[np.floating]] | None = None,
+) -> list[PowerMethodTrace]:
+    """Run power method on multiple matrices (batch processing).
+
+    GPU-ready batch interface for processing multiple matrices.
+    Currently executes sequentially on CPU; designed for future
+    cuBLAS batched GEMM integration.
+
+    Args:
+        matrices: List of input matrices.
+        precision: Target precision format (applied to all matrices).
+        true_eigenvalues: Reference eigenvalues for each matrix.
+        max_iterations: Maximum iterations per matrix.
+        target_error: Optional convergence threshold.
+        initial_vectors: Optional starting vectors (one per matrix).
+
+    Returns:
+        List of PowerMethodTrace results, one per matrix.
+
+    Example:
+        >>> matrices = [create_experiment(256).matrix for _ in range(10)]
+        >>> eigenvalues = [np.max(np.linalg.eigvalsh(m)) for m in matrices]
+        >>> traces = run_power_method_batch(matrices, "fp32", eigenvalues)
+        >>> converged_count = sum(1 for t in traces if t.converged)
+    """
+    if len(matrices) != len(true_eigenvalues):
+        raise ValueError("Number of matrices must match number of eigenvalues")
+
+    if initial_vectors is not None and len(initial_vectors) != len(matrices):
+        raise ValueError("Number of initial vectors must match number of matrices")
+
+    results: list[PowerMethodTrace] = []
+
+    for i, (matrix, true_eig) in enumerate(
+        zip(matrices, true_eigenvalues, strict=True)
+    ):
+        init_vec = initial_vectors[i] if initial_vectors else None
+        trace = run_power_method(
+            matrix,
+            precision,
+            true_eig,
+            max_iterations=max_iterations,
+            target_error=target_error,
+            initial_vector=init_vec,
+        )
+        results.append(trace)
+
+    return results
+
+
 __all__ = [
     "IterationResult",
     "ConvergenceResult",
     "PowerIteration",
     "PowerMethodTrace",
     "run_power_method",
+    "run_power_method_batch",
 ]
