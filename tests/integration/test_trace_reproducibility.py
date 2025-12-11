@@ -95,9 +95,9 @@ class TestSinglePrecisionReproducibility:
         """Compare actual trace against expected with appropriate tolerances."""
         tol = TOLERANCES[precision]
 
-        assert len(actual) == len(expected), (
-            f"Trace length mismatch: {len(actual)} vs {len(expected)}"
-        )
+        assert len(actual) == len(
+            expected
+        ), f"Trace length mismatch: {len(actual)} vs {len(expected)}"
 
         for i, (act, exp) in enumerate(zip(actual, expected, strict=True)):
             assert act["iteration"] == exp["iteration"], f"Iteration mismatch at {i}"
@@ -158,9 +158,9 @@ class TestSinglePrecisionReproducibility:
         # Check that final residual is smaller than initial
         # With condition_number=100, convergence rate is ~0.99 per iteration
         # After 100 iterations: 0.99^100 ≈ 0.37, so expect ~60% reduction minimum
-        assert residuals[-1] < residuals[0] * 0.5, (
-            "FP64 should show convergence progress"
-        )
+        assert (
+            residuals[-1] < residuals[0] * 0.5
+        ), "FP64 should show convergence progress"
 
     def test_eigenvalue_converges_to_true(self, experiment) -> None:
         """Eigenvalue should converge toward true value."""
@@ -170,9 +170,9 @@ class TestSinglePrecisionReproducibility:
 
         rel_error = abs(final_eigenvalue - true_eigenvalue) / true_eigenvalue
         # With condition_number=100 and 100 iterations, expect ~1% relative error
-        assert rel_error < 0.02, (
-            f"Eigenvalue should converge: {final_eigenvalue} vs {true_eigenvalue}"
-        )
+        assert (
+            rel_error < 0.02
+        ), f"Eigenvalue should converge: {final_eigenvalue} vs {true_eigenvalue}"
 
 
 class TestCascadeReproducibility:
@@ -219,27 +219,27 @@ class TestCascadeReproducibility:
         )
 
         # Check segment count
-        assert len(trace.segments) == len(expected["segments"]), (
-            f"Segment count mismatch: {len(trace.segments)} vs {len(expected['segments'])}"
-        )
+        assert (
+            len(trace.segments) == len(expected["segments"])
+        ), f"Segment count mismatch: {len(trace.segments)} vs {len(expected['segments'])}"
 
         # Check each segment
         for i, (actual, exp) in enumerate(
             zip(trace.segments, expected["segments"], strict=True)
         ):
-            assert actual.precision == exp["precision"], (
-                f"Segment {i} precision mismatch: {actual.precision} vs {exp['precision']}"
-            )
+            assert (
+                actual.precision == exp["precision"]
+            ), f"Segment {i} precision mismatch: {actual.precision} vs {exp['precision']}"
             assert actual.iterations == exp["iterations"], (
                 f"Segment {i} iteration count mismatch: "
                 f"{actual.iterations} vs {exp['iterations']}"
             )
-            assert actual.start_iteration == exp["start_iteration"], (
-                f"Segment {i} start mismatch"
-            )
-            assert actual.end_iteration == exp["end_iteration"], (
-                f"Segment {i} end mismatch"
-            )
+            assert (
+                actual.start_iteration == exp["start_iteration"]
+            ), f"Segment {i} start mismatch"
+            assert (
+                actual.end_iteration == exp["end_iteration"]
+            ), f"Segment {i} end mismatch"
 
     def test_cascade_trace_reproducibility(self) -> None:
         """Cascade trace iterations should match golden file."""
@@ -262,9 +262,9 @@ class TestCascadeReproducibility:
         actual_history = list(trace.history)[:MAX_ITERATIONS]
         expected_history = expected["trace"]
 
-        assert len(actual_history) == len(expected_history), (
-            f"History length mismatch: {len(actual_history)} vs {len(expected_history)}"
-        )
+        assert len(actual_history) == len(
+            expected_history
+        ), f"History length mismatch: {len(actual_history)} vs {len(expected_history)}"
 
         for i, (act, exp) in enumerate(
             zip(actual_history, expected_history, strict=True)
@@ -309,9 +309,9 @@ class TestCascadeReproducibility:
         precisions = [s.precision for s in trace.segments]
         expected_precisions = [s["precision"] for s in expected["segments"]]
 
-        assert precisions == expected_precisions, (
-            f"Precision sequence mismatch: {precisions} vs {expected_precisions}"
-        )
+        assert (
+            precisions == expected_precisions
+        ), f"Precision sequence mismatch: {precisions} vs {expected_precisions}"
 
         # Verify order is correct (no going back)
         valid_order = ["FP8", "FP16", "FP32", "FP64"]
@@ -372,9 +372,9 @@ class TestTraceStatistics:
         log_residuals = np.log10(residuals)
         # Check that later residuals are lower (at least 1 order of magnitude)
         # With condition_number=100, convergence is slow (~0.99 per iteration)
-        assert log_residuals[-1] < log_residuals[0] - 1, (
-            "Should achieve at least 1 order of magnitude improvement"
-        )
+        assert (
+            log_residuals[-1] < log_residuals[0] - 1
+        ), "Should achieve at least 1 order of magnitude improvement"
 
     def test_precision_comparison(self, experiment) -> None:
         """Higher precision should achieve lower final residual."""
@@ -400,9 +400,9 @@ class TestTraceStatistics:
         # FP64 should be best or equal, FP32 second or equal, FP16 third
         # At convergence, higher precision may achieve same residual (limited by
         # convergence rate, not precision), so use <= rather than strict <
-        assert final_residuals["fp64"] <= final_residuals["fp32"] * 1.01, (
-            "FP64 should be at least as good as FP32"
-        )
-        assert final_residuals["fp32"] <= final_residuals["fp16"] * 1.01, (
-            "FP32 should be at least as good as FP16"
-        )
+        assert (
+            final_residuals["fp64"] <= final_residuals["fp32"] * 1.01
+        ), "FP64 should be at least as good as FP32"
+        assert (
+            final_residuals["fp32"] <= final_residuals["fp16"] * 1.01
+        ), "FP32 should be at least as good as FP16"
