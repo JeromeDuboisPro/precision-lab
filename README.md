@@ -179,7 +179,8 @@ This project explores mixed-precision concepts directly applicable to production
 - **Well-conditioned matrices (κ < 10)**: May converge entirely in FP8/FP16, no escalation needed
 - **Ill-conditioned matrices (κ > 1000)**: Requires FP32/FP64 from start, cascading adds overhead
 - **Already-converged problems**: If FP8 reaches target, no benefit from higher precision
-- **Memory bandwidth saturated**: When compute is bottleneck (rare for iterative solvers)
+- **Very small matrices (n < ~64)**: Entire problem fits in L1 cache regardless of precision, switching overhead dominates
+- **High switching frequency**: If plateau detection triggers too aggressively, overhead of format conversion exceeds bandwidth gains
 
 **Note**: This is an educational CPU implementation demonstrating mixed-precision concepts. Production GPU implementation would require CUDA kernels, GPU library integration, and careful memory bandwidth optimization.
 

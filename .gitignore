@@ -123,3 +123,7 @@ claudedocs/
 
 # Local task tracking
 .beads/
+
+# Internal planning documents
+docs/CHANGELOG_LINKEDIN.md
+docs/LINKEDIN_NARRATIVE.md
