@@ -125,5 +125,4 @@ claudedocs/
 .beads/
 
 # Internal planning documents
-docs/CHANGELOG_LINKEDIN.md
-docs/LINKEDIN_NARRATIVE.md
+docs/private/
