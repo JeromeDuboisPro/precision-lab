@@ -85,7 +85,7 @@ def generate_roofline_plot(output_path: Path) -> None:
     Args:
         output_path: Path to save plot image.
     """
-    fig, ax = plt.subplots(figsize=(12, 8))
+    fig, ax = plt.subplots(figsize=(14, 10))
 
     # Operational intensity range (FLOPS/byte)
     oi_range = np.logspace(-2, 2, 100)  # 0.01 to 100 FLOPS/byte
@@ -134,55 +134,86 @@ def generate_roofline_plot(output_path: Path) -> None:
             zorder=10,
         )
 
-        # Annotate with actual speedup
+        # Annotate with actual speedup (position based on precision to avoid overlaps)
         bytes_per_elem = BYTES_PER_ELEMENT[precision]
         actual_speedup = BYTES_PER_ELEMENT["FP64"] / bytes_per_elem
         theoretical_speedup = THEORETICAL_SPEEDUP[precision]
 
+        # Strategic annotation positions to avoid overlap
+        annotation_positions = {
+            "FP64": (15, -40),  # Below
+            "FP32": (25, 25),  # Upper right
+            "FP16": (30, -30),  # Lower right
+            "FP8": (35, 35),  # Far upper right
+        }
+
         ax.annotate(
             f"{precision}\nActual: {actual_speedup:.1f}×\nTheory: {theoretical_speedup:.1f}×",
             xy=(pm_oi, pm_perf),
-            xytext=(20, 20),
+            xytext=annotation_positions[precision],
             textcoords="offset points",
-            fontsize=9,
+            fontsize=10,
+            fontweight="bold",
             bbox={
-                "boxstyle": "round,pad=0.5",
+                "boxstyle": "round,pad=0.6",
                 "facecolor": colors[precision],
-                "alpha": 0.7,
+                "alpha": 0.85,
+                "edgecolor": "black",
+                "linewidth": 1.5,
             },
-            arrowprops={"arrowstyle": "->", "connectionstyle": "arc3,rad=0.3"},
+            arrowprops={
+                "arrowstyle": "->",
+                "connectionstyle": "arc3,rad=0.2",
+                "linewidth": 2,
+                "color": "black",
+            },
         )
 
     # Styling
-    ax.set_xlabel("Operational Intensity (FLOPS/byte)", fontsize=14, fontweight="bold")
-    ax.set_ylabel("Performance (GFLOPS)", fontsize=14, fontweight="bold")
+    ax.set_xlabel("Operational Intensity (FLOPS/byte)", fontsize=16, fontweight="bold")
+    ax.set_ylabel("Performance (GFLOPS)", fontsize=16, fontweight="bold")
     ax.set_title(
         "Roofline Model: Power Method on H100 GPU\n"
         "Memory Bandwidth Limits Mixed-Precision Speedup",
-        fontsize=16,
+        fontsize=18,
         fontweight="bold",
-        pad=20,
+        pad=25,
     )
-    ax.grid(True, which="both", alpha=0.3, linestyle="--")
-    ax.legend(loc="lower right", fontsize=11, framealpha=0.9)
+    ax.grid(True, which="both", alpha=0.3, linestyle="--", linewidth=0.8)
+    ax.legend(
+        loc="lower right",
+        fontsize=12,
+        framealpha=0.95,
+        edgecolor="black",
+        fancybox=True,
+    )
 
-    # Add text box with key insight
+    # Add text box with key insight (repositioned to top-right for better visibility)
     textstr = (
-        "Key Insight:\n"
-        "Power method has low operational intensity (0.25-2 FLOPS/byte)\n"
+        "Key Insight:\n\n"
+        "Power method: Low operational intensity\n"
+        "(0.25-2 FLOPS/byte)\n\n"
         "→ Memory-bound, NOT compute-bound\n"
-        "→ Speedup ≈ bytes_ratio, not tensor_core_ratio\n"
-        "→ FP8 gives 8× bandwidth advantage, not 8× FLOPS advantage"
+        "→ Speedup from bytes_ratio, not FLOPS\n"
+        "→ FP8: 8× bandwidth advantage"
     )
-    props = {"boxstyle": "round", "facecolor": "wheat", "alpha": 0.8}
+    props = {
+        "boxstyle": "round,pad=0.8",
+        "facecolor": "lightyellow",
+        "alpha": 0.95,
+        "edgecolor": "black",
+        "linewidth": 2,
+    }
     ax.text(
-        0.02,
-        0.98,
+        0.97,
+        0.97,
         textstr,
         transform=ax.transAxes,
-        fontsize=10,
+        fontsize=11,
         verticalalignment="top",
+        horizontalalignment="right",
         bbox=props,
+        fontweight="bold",
     )
 
     plt.tight_layout()
