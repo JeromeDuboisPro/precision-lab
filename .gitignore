@@ -123,3 +123,6 @@ claudedocs/
 
 # Local task tracking
 .beads/
+
+# Internal planning documents
+docs/private/

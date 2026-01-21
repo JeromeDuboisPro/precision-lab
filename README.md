@@ -9,6 +9,8 @@
 
 **[Live Demo →](https://jeromeduboispro.github.io/precision-lab/)** *(Interactive visualizations showing precision race and cascading precision algorithm)*
 
+**[Project Context →](docs/CONTEXT.md)** *(Why FP8 matters, when cascading works, real-world applications)*
+
 ---
 
 ## Key Findings
@@ -143,6 +145,44 @@ precision-lab/
 ├── tests/                      # pytest test suite
 └── web/                        # Web visualization assets
 ```
+
+---
+
+## Relevance to GPU Math Libraries
+
+This project explores mixed-precision concepts directly applicable to production GPU linear algebra libraries:
+
+### **Memory Bandwidth Optimization**
+- **Power method is memory-bound**: Performance limited by DRAM bandwidth, not tensor core FLOPS
+- **Lower precision = higher bandwidth utilization**: FP8 (1 byte) moves 8× more vectors than FP64 (8 bytes) per bandwidth unit
+- **Roofline analysis**: Demonstrates when reduced precision provides actual speedup vs theoretical peak (see `experiments/generate_roofline.py`)
+
+![Roofline Model](experiments/figures/roofline_power_method.png)
+*Roofline model showing memory bandwidth limits mixed-precision speedup for power method on H100*
+
+### **Adaptive Precision Iterative Solvers**
+- **Auto-escalation based on convergence monitoring**: Switch precision when residual improvement plateaus
+- **Applicable to GMRES, CG, BiCGSTAB**: Any iterative method with residual-based convergence
+- **Production trade-off**: Balance accuracy requirements vs throughput constraints
+
+### **Batched GEMV Operations**
+- **Interface designed for batched workflows**: `run_power_method_batch()` processes multiple matrices
+- **GPU library integration path**: Maps to batched GEMV APIs for parallel operations
+- **Current implementation**: CPU sequential (educational), designed for GPU batching patterns
+
+### **Tensor Core Mixed-Precision Patterns**
+- **FP8/FP16 for throughput, FP32/FP64 for accuracy**: Core strategy for modern GPU solvers
+- **State preservation across transitions**: Eigenvector carried forward (no re-computation)
+- **Plateau detection**: Production-ready heuristics for precision escalation triggers
+
+### **When Cascading Doesn't Help**
+- **Well-conditioned matrices (κ < 10)**: May converge entirely in FP8/FP16, no escalation needed
+- **Ill-conditioned matrices (κ > 1000)**: Requires FP32/FP64 from start, cascading adds overhead
+- **Already-converged problems**: If FP8 reaches target, no benefit from higher precision
+- **Very small matrices (n < ~64)**: Entire problem fits in L1 cache regardless of precision, switching overhead dominates
+- **High switching frequency**: If plateau detection triggers too aggressively, overhead of format conversion exceeds bandwidth gains
+
+**Note**: This is an educational CPU implementation demonstrating mixed-precision concepts. Production GPU implementation would require CUDA kernels, GPU library integration, and careful memory bandwidth optimization.
 
 ---
 
