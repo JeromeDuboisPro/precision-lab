@@ -141,10 +141,10 @@ def generate_roofline_plot(output_path: Path) -> None:
 
         # Strategic annotation positions to avoid overlap
         annotation_positions = {
-            "FP64": (15, -40),  # Below
-            "FP32": (25, 25),  # Upper right
-            "FP16": (30, -30),  # Lower right
-            "FP8": (35, 35),  # Far upper right
+            "FP64": (10, -55),  # Below and left
+            "FP32": (45, 5),  # Far right, slightly up
+            "FP16": (10, 40),  # Above and left
+            "FP8": (50, 30),  # Far upper right
         }
 
         ax.annotate(
@@ -188,30 +188,29 @@ def generate_roofline_plot(output_path: Path) -> None:
         fancybox=True,
     )
 
-    # Add text box with key insight (repositioned to top-right for better visibility)
+    # Add text box with key insight (compact, top-left to avoid annotation area)
     textstr = (
-        "Key Insight:\n\n"
-        "Power method: Low operational intensity\n"
-        "(0.25-2 FLOPS/byte)\n\n"
-        "→ Memory-bound, NOT compute-bound\n"
-        "→ Speedup from bytes_ratio, not FLOPS\n"
-        "→ FP8: 8× bandwidth advantage"
+        "Key Insight:\n"
+        "Low OI (0.25-2 FLOPS/byte)\n"
+        "→ Memory-bound\n"
+        "→ Speedup = bytes_ratio\n"
+        "→ FP8: 8× bandwidth gain"
     )
     props = {
-        "boxstyle": "round,pad=0.8",
+        "boxstyle": "round,pad=0.6",
         "facecolor": "lightyellow",
         "alpha": 0.95,
         "edgecolor": "black",
         "linewidth": 2,
     }
     ax.text(
-        0.97,
+        0.03,
         0.97,
         textstr,
         transform=ax.transAxes,
-        fontsize=11,
+        fontsize=10,
         verticalalignment="top",
-        horizontalalignment="right",
+        horizontalalignment="left",
         bbox=props,
         fontweight="bold",
     )
