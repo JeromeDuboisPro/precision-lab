@@ -142,8 +142,8 @@ def generate_roofline_plot(output_path: Path) -> None:
         # Strategic annotation positions to avoid overlap
         annotation_positions = {
             "FP64": (10, -55),  # Below and left
-            "FP32": (45, 5),  # Far right, slightly up
-            "FP16": (10, 40),  # Above and left
+            "FP32": (45, -10),  # Far right, slightly down (avoid green curve)
+            "FP16": (-5, 40),  # Above and more left (avoid red dot)
             "FP8": (50, 30),  # Far upper right
         }
 
